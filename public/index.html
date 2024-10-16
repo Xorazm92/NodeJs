@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autentifikatsiya</title>
+</head>
+<body>
+    <h1>Ro'yxatdan o'tish</h1>
+    <form id="registerForm">
+        <input type="text" name="username" placeholder="Username" required minlength="4" />
+        <input type="password" name="password" placeholder="Parol" required minlength="6" />
+        <input type="text" name="fullName" placeholder="F.I.Sh" required minlength="10" />
+        <input type="number" name="age" placeholder="Yosh" required min="10" />
+        <select name="gender" required>
+            <option value="">Jinsni tanlang</option>
+            <option value="M">Erkak</option>
+            <option value="F">Ayol</option>
+        </select>
+        <button type="submit">Ro'yxatdan o'tish</button>
+    </form>
+
+    <h1>Kirish</h1>
+    <form id="loginForm">
+        <input type="text" name="username" placeholder="Username" required />
+        <input type="password" name="password" placeholder="Parol" required />
+        <button type="submit">Kirish</button>
+    </form>
+
+    <script>
+        // Ro'yxatdan o'tish funksiyasi
+        document.getElementById('registerForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData);
+
+            const response = await fetch('/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+            alert(result.message || result.error);
+        });
+
+        // Kirish funksiyasi
+        document.getElementById('loginForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData);
+
+            const response = await fetch('/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+            alert(result.message || result.error);
+        });
+    </script>
+</body>
+</html>
