@@ -1,0 +1,53 @@
+import { pool } from "../config/db.js";
+
+const productController = {
+  async createProduct(req, res) {
+    try {
+      const { user_id, name } = req.body;
+      const { rows } = await pool.query(
+        "INSERT INTO product (user_id, name, created_at, updated_at) VALUES ($1, $2, NOW(), NOW()) RETURNING *",
+        [user_id, name]
+      );
+      res.status(201).json(rows[0]);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  async getAllProducts(req, res) {
+    try {
+      const { rows } = await pool.query("SELECT * FROM product");
+      res.json(rows);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  async updateProduct(req, res) {
+    try {
+      const { id } = req.params;
+      const { name } = req.body;
+      const { rows } = await pool.query(
+        "UPDATE product SET name = $1, updated_at = NOW() WHERE id = $2 RETURNING *",
+        [name, id]
+      );
+      if (rows.length === 0) return res.status(404).json({ error: "Product not found" });
+      res.json(rows[0]);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  async deleteProduct(req, res) {
+    try {
+      const { id } = req.params;
+      const { rowCount } = await pool.query("DELETE FROM product WHERE id = $1", [id]);
+      if (rowCount === 0) return res.status(404).json({ error: "Product not found" });
+      res.json({ message: "Product deleted" });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+};
+
+export default productController;
