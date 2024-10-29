@@ -1,6 +1,6 @@
 import { pool } from "../config/db.js";
 
-const categoryController = {
+export const categoryController = {
   async createCategory(req, res) {
     try {
       const { name, description, par_id } = req.body;
@@ -35,4 +35,3 @@ const categoryController = {
   }
 };
 
-export default categoryController;

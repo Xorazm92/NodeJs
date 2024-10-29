@@ -1,9 +1,12 @@
 import { pool } from "../config/db.js";
 
-const userController = {
+export const userController = {
     register: async (res,req) => {
         try {
-            const {name, email, password,fullname} = req.body;
+            const data = req.body;
+            if(typeof data === "string"){
+                 data = JSON.parse (req.body)
+            }
 
             const{row} = await pool.query(
                 'Insert into users (name, email, password,fullname,  creat_at, update_at) Values ($1, $2, $3, $4, now(), now()) returning id, name, email',
@@ -48,5 +51,3 @@ const userController = {
         }
     }
 }
-
-export default userController;
