@@ -1,0 +1,145 @@
+*{
+    margin: 0;
+    padding:0;
+    box-sizing: border-box;
+}
+
+body {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+h2{
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.form-container{
+    width: 300px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #acc;
+    border-radius: 8px;
+}
+
+.form-group{
+    margin-bottom: 15px;
+}
+
+.form-group label{
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+    font-size: 12px;
+    border: 1px solid #acc;
+    border-radius: 8px;
+}
+
+.submit-btn{
+    display: block;
+    width: 100%;
+    padding: 8px 15px;
+    border-color: lightseagreen;
+    color: aliceblue;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.submit-btn:hover{
+    background-color:#4565ab;
+}
+
+
+p{
+    margin-top: 15px;
+}
+
+
+.form-holder {
+    border-radius: 15px;
+    background-color: #fff;
+    border: 1px solid #eee;
+    overflow: hidden;
+    margin-top: 50px;
+    opacity: 1;
+    visibility: visible;
+    transition: all 0.3s ease; /* -webkit-prefixed o'rniga standart transition ishlatish */
+
+    .input {
+        border: 0;
+        outline: none;
+        box-shadow: none;
+        display: block;
+        height: 30px;
+        line-height: 30px;
+        padding: 8px 15px;
+        border-bottom: 1px solid #eee;
+        width: 100%;
+        font-size: 12px;
+
+        &:last-child {
+            border-bottom: 0;
+        }
+
+        &::-webkit-input-placeholder {
+            color: rgba(0, 0, 0, 0.4);
+        }
+    }
+}
+
+.submit-btn {
+    background-color: #6B92A4; /* Tugma rangini o'zgartirish */
+    color: rgba(256, 256, 256, 0.7);
+    border: 0;
+    border-radius: 15px;
+    display: block;
+    margin: 15px auto; 
+    padding: 15px 45px;
+    width: 100%;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    opacity: 1;
+    visibility: visible;
+    transition: all 0.3s ease; /* -webkit-prefixed o'rniga standart transition ishlatish */
+
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.8);
+    }
+}
+
+.slide-up {
+    top: 90%;
+    transition: all 0.3s ease; /* -webkit-prefixed o'rniga standart transition ishlatish */
+
+    .center {
+        top: 10%;
+        transform: translate(-50%, 0%);
+        transition: all 0.3s ease; /* -webkit-prefixed o'rniga standart transition ishlatish */
+    }
+
+    .form-holder,
+    .submit-btn {
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease; /* -webkit-prefixed o'rniga standart transition ishlatish */
+    }
+
+    .form-title {
+        font-size: 1em;
+        margin: 0;
+        padding: 0;
+        cursor: pointer;
+        transition: all 0.3s ease; /* -webkit-prefixed o'rniga standart transition ishlatish */
+    }
+
+    .form-title span {
+        margin-right: 5px;
+        opacity: 1;
+        visibility: visible;
+        transition: all 0.3s ease; /* -webkit-prefixed o'rniga standart transition ishlatish */
+    }
+}
