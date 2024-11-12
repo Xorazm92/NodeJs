@@ -14,3 +14,5 @@ authRouter.get(
     res.send("ok");
   }
 );
+
+authRouter.post('/refreshToken', refreshTokenController)

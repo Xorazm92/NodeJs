@@ -1,9 +1,10 @@
 import express from "express";
 import morgan from "morgan";
 import dotenv from "dotenv";
-import { authRouter, blogRouter, categoryRouter, userRouter } from "./routes/index.js";
+import { authRouter, blogRouter, categoryRouter, commentRouter, userRouter } from "./routes/index.js";
 import { logger } from "./utils/index.js";
 import { articleRouter } from "./routes/article.routes.js";
+import courseRouter from "./routes/course.routes.js";
 
 dotenv.config();
 
@@ -18,6 +19,8 @@ app.use("/blog", blogRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/category", categoryRouter);
 app.use("/api/v1", articleRouter);
+app.use("/comment", commentRouter)
+app.use("/course", courseRouter)
 
 app.use((err, req, res, next) => {
   if (err) {

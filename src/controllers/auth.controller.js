@@ -67,3 +67,14 @@ export const loginController = async (req, res, next) => {
     next(new ApiError(error.statusCode, error.message));
   }
 };
+
+
+export const refreshTokenController = (req, res, next){
+  try {
+    
+  } catch (error) {
+    next (new ApiError(error.statusCode, error.message))
+    
+  }
+
+}
