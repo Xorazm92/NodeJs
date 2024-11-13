@@ -21,6 +21,7 @@ app.use("/api/v1/category", categoryRouter);
 app.use("/api/v1", articleRouter);
 app.use("/comment", commentRouter)
 app.use("/course", courseRouter)
+app.use("/api/v1/article", articleRouter);
 
 app.use((err, req, res, next) => {
   if (err) {

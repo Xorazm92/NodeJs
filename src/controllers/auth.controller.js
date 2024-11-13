@@ -1,28 +1,38 @@
 import jwt from "jsonwebtoken";
-import { User } from "../modules/index.js";
+import { User } from "../Schema/index.js";
 import { statusCodes, errorMessages, ApiError } from "../utils/index.js";
 
 export const registerController = async (req, res, next) => {
   try {
-    const { email, role } = req.body;
+    const { email } = req.body;
+
     const currentUser = await User.findOne({ email });
 
     if (!currentUser) {
-      console.log({ currentUser });
-      const user = new User(req.body);
-      console.log({ user });
+      const otp = otpGenerator();
 
+      await sendMail(email, "OTP", `this is your OTP: ${otp}`);
+
+      const user = new User(req.body);
       await user.save();
+
+      const db_otp = new OTP({
+        user_id: user._id,
+        otp_code: otp,
+      });
+
+      await db_otp.save();
       return res.status(statusCodes.CREATED).send("created");
     }
     return res
       .status(statusCodes.CONFLICT)
       .send(errorMessages.EMAIL_ALREADY_EXISTS);
   } catch (error) {
-    console.log(error)
+    console.log(error);
     next(new ApiError(error.statusCode, error.message));
   }
 };
+
 
 export const loginController = async (req, res, next) => {
   try {
@@ -35,8 +45,9 @@ export const loginController = async (req, res, next) => {
         .send(errorMessages.USER_NOT_FOUND);
     }
 
-    const passwordIsEqual = currentUser.compare(password);
+    const passwordIsEqual = await currentUser.compare(password);
 
+    console.log(passwordIsEqual);
     if (!passwordIsEqual) {
       return res
         .status(statusCodes.BAD_REQUEST)
@@ -69,12 +80,56 @@ export const loginController = async (req, res, next) => {
 };
 
 
-export const refreshTokenController = (req, res, next){
+export const refreshTokenController = async (req, res, next) => {
   try {
-    
-  } catch (error) {
-    next (new ApiError(error.statusCode, error.message))
-    
-  }
+    const { token } = req.body;
+    jwt.verify(token, process.env.JWT_REFRESH_SECRET, (error, decode) => {
+      if (error)
+        throw new Error(statusCodes.FORBIDDEN, errorMessages.FORBIDDEN);
 
-}
+      logger.info({ decode });
+
+      const accessToken = jwt.sign(
+        {
+          sub: decode.sub,
+          role: decode.role,
+        },
+        process.env.JWT_ACCESS_SECRET,
+        {
+          expiresIn: process.env.JWT_ACCESS_EXPIRES_IN,
+        }
+      );
+
+      return res.send({ accessToken, refreshToken: token });
+    });
+  } catch (error) {
+    next(new ApiError(error.statusCode, error.message));
+  }
+};
+
+export const verifyController = async (req, res, next) => {
+  try {
+    const { otp, email } = req.body;
+
+    const currentUser = await User.findOne({ email });
+    const currentOtp = await OTP.findOne({ user_id: currentUser._id });
+
+    const isEqual = currentOtp.verify(otp);
+
+    if (!isEqual) {
+      return res.send("OTP is not valid");
+    }
+
+    await OTP.deleteOne({ user_id: currentUser._id });
+    await User.updateOne(
+      { email },
+      {
+        is_active: true,
+      }
+    );
+
+    res.send("user is actived");
+  } catch (error) {
+    next(new ApiError(error.statusCode, error.message));
+  }
+};
