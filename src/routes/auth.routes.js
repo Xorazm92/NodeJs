@@ -1,19 +1,49 @@
 import { Router } from "express";
-import { loginController, refreshTokenController, registerController, verifyController } from "../controllers/index.js";
-import { authGuard, roleGuard } from "../middleware/index.js";
-
+import {
+    adminController,
+    deleteAdminController,
+    forgetPasswordController,
+    loginController,
+    refreshTokenController,
+    registerController,
+    updateAdminController,
+    verifyController,
+} from "../controllers/index.js";
+import {
+    authGuard,
+    roleGuard,
+    validateOtp,
+    validateUser,
+} from "../middleware/index.js";
 export const authRouter = new Router();
 
-authRouter.post("/register", registerController);
-authRouter.post("/login", loginController);
-authRouter.get(
-  "/me",
-  authGuard,
-  roleGuard(["admin", "moderator"]),
-  (req, res) => {
-    res.send("ok");
-  }
+authRouter.post("/register", validateUser, registerController);
+authRouter.post("/login", validateUser, loginController);
+authRouter.post("/verify", validateOtp, verifyController);
+// TO REFRESH YOUR ACCESS TOKEN
+authRouter.post("/refreshToken", refreshTokenController);
+// TO ADD NEW ADMIN
+authRouter.post(
+    "/admin",
+    validateUser,
+    authGuard,
+    roleGuard(["superAdmin"]),
+    adminController
 );
-
-authRouter.post('/refreshToken', refreshTokenController);
-authRouter.post("/verify", verifyController);
+// TO UPDATE ADMIN
+authRouter.put(
+    "/admin/:email",
+    validateUser,
+    authGuard,
+    roleGuard(["superAdmin"]),
+    updateAdminController
+);
+// TO DELETE ADMIN
+authRouter.delete(
+    "/admin/:email",
+    authGuard,
+    roleGuard(["superAdmin"]),
+    deleteAdminController
+);
+authRouter.post("/forget-password", forgetPasswordController);
+authRouter.put("/forget-password/:token", forgetPasswordAndUpdateController);

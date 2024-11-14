@@ -1,59 +1,52 @@
-const Course = require("../Schema/courses.model.js");
-
-export const addCourse = async (req, res, next) => {
+import {
+    createCourse,
+    deleteCourse,
+    getCourse,
+    getCourseByName,
+    updateCourse,
+} from "../service/index.js";
+import { statusCodes, errorMessages, ApiError } from "../utils/index.js";
+export const getAllCourseController = async (req, res, next) => {
     try {
-        const {comment_id, category_id} = req.body;
-        const newCourse = await Course.create({comment_id, category_id});
-
-       
-    res.status(201).send({ message: "Course created successfully...", newCourse });
-
-} catch (error) {
-
-  next(error);
-
-}
-
-};
-
-export const getCourse = async (req,res,next) => {
-    try{
-        res,send(await Course.find())
+        const data = await getCourse();
+        res.status(statusCodes.OK).send(data);
     } catch (error) {
-        next(error)
+        next(new ApiError(error.statusCode, error.message));
     }
 };
-
-export const updateCourse = async (req,res,next) => {
+export const getByNameCourseController = async (req, res, next) => {
     try {
-        const {comment_id, category_id} = req.body;
-        const newCourse = await Course.findByIdAndUpdate({comment_id, category_id}, {new: true});
-
-       
-    res.status(200).send({ message: "Course update successfully...", newCourse });
-
-} catch (error) {
-
-  next(error);
-
-}
-
+        const name = req.params.name;
+        const data = await getCourseByName(name);
+        res.status(statusCodes.OK).send(data);
+    } catch (error) {
+        next(new ApiError(error.statusCode, error.message));
+    }
 };
-
-export const deleteCourse = async (req,res,next) => {
+export const createCourseController = async (req, res, next) => {
     try {
-        const {id} = req.params;
-        const deleteCourse = await Course.findByIdAndDelete({id});
-
-       
-    res.status(200).send({ message: "Course delete successfully...", deleteCourse });
-
-} catch (error) {
-
-  next(error);
-
-}
-
+        const { name, category_id, description } = req.body;
+        const data = await createCourse(name, category_id, description);
+        return res.status(statusCodes.CONFLICT).send(data);
+    } catch (error) {
+        next(new ApiError(error.statusCode, error.message));
+    }
 };
-
-
+export const updateCourseController = async (req, res, next) => {
+    try {
+        const name = req.params.name;
+        const data = await updateCourse(name, req.body);
+        res.status(statusCodes.OK).send(data);
+    } catch (error) {
+        next(new ApiError(error.statusCode, error.message));
+    }
+};
+export const deleteCourseController = async (req, res, next) => {
+    try {
+        const name = req.params.name;
+        const data = await deleteCourse(name);
+        res.status(statusCodes.OK).send(data);
+    } catch (error) {
+        next(new ApiError(error.statusCode, error.message));
+    }
+};

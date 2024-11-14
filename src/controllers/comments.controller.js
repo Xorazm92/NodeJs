@@ -1,64 +1,64 @@
-const Comment = require("../modules/comments.model.js");
-
-export const addComment = async (req,res, next) => {
-    try{
-        const{
-            user_id,
-            Comment_title,
-            created_date,
-            course_id,
-
-            
-
-        } = req.body;
-    
-    const newComment = await Comment.create({user_id,Comment_title,  created_date, course_id});
-
-    res.status(201).send({ message: "Comment created successfully...", newComment });
-    } catch (error) {
-        next(error)
-    }
-}
-
-export const getComment = async (req,res,next) => {
+import {
+    createComment,
+    deleteComment,
+    getCommentByContent,
+    getComments,
+    updateComment,
+} from "../service/index.js";
+import { statusCodes, errorMessages, ApiError } from "../utils/index.js";
+export const getAllCommentsController = async (req, res, next) => {
     try {
-        res.send(await Comment,find())
+        const data = await getComments();
+        return res.status(statusCodes.OK).send({
+            message: "All courses",
+            Comments: data,
+        });
     } catch (error) {
-       next(error)
-    }
-}
-
-export const updateComment = async (req,res, next) => {
-    try{
-        const {id} = req.params
-        const{
-            user_id,
-            Comment_title,
-            created_date,
-            course_id,
-
-            
-
-        } = req.body;
-    
-    const updateComment = await Comment.findByIdAndUpdate({user_id,Comment_title,  created_date, course_id}, {new: true});
-
-    res.status(201).send({ message: "Comment created successfully...", updateComment });
-    } catch (error) {
-        next(error)
+        next(new ApiError(error.statusCode, error.message));
     }
 };
-
-
-export const deleteComment = async (req, res, next) => {
-    try{
-        const{id} = req.params
-        const deleteComments = await Comment.findByIdAndDelete(id)
-
-        res.status(200).send({message: "Comment delete Succesfuly ... ", deleteComment})
-    } catch (error){
-        next(error)
+export const getByContentCommentController = async (req, res, next) => {
+    try {
+        const content = req.params.content;
+        const data = await getCommentByContent(content);
+        return res.status(statusCodes.OK).send({
+            message: "Comment",
+            data: data,
+        });
+    } catch (error) {
+        next(new ApiError(error.statusCode, error.message));
     }
-    
-}
-
+};
+export const createCommentController = async (req, res, next) => {
+    try {
+        const { content, course_id, article_id } = req.body;
+        const commentitems = req.body;
+        const data = await createComment(
+            content,
+            commentitems,
+            course_id,
+            article_id
+        );
+        res.send(data);
+    } catch (error) {
+        next(new ApiError(error.statusCode, error.message));
+    }
+};
+export const updateCommentController = async (req, res, next) => {
+    try {
+        const content = req.params.content;
+        const data = await updateComment(content, req.body);
+        res.status(statusCodes.OK).send(data);
+    } catch (error) {
+        next(new ApiError(error.statusCode, error.message));
+    }
+};
+export const deleteCommentController = async (req, res, next) => {
+    try {
+        const content = req.params.content;
+        const data = await deleteComment(content);
+        res.status(statusCodes.OK).send(data);
+    } catch (error) {
+        next(new ApiError(error.statusCode, error.message));
+    }
+};

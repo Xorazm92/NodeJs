@@ -1,30 +1,31 @@
 import { Router } from "express";
-import { authGuard, roleGuard } from "../middleware/index.js";
 import {
-  addArticle,
-  deleteArticleById,
-  getArticle,
-  updateArticleById,
-} from "../controllers/article.controller.js";
-
-export const articleRouter = new Router();
-
-articleRouter.get("/", getArticle);
-articleRouter.post(
-  "/",
-  authGuard,
-  roleGuard("admin", "superAdmin"),
-  addArticle
+    getAllArticlesController,
+    createArticlesController,
+    updateArticlesController,
+    deleteArticlesController,
+} from "../controllers/index.js";
+import { authGuard, roleGuard } from "../middleware/index.js";
+import { validateArticle } from "../middleware/article.middleware.js";
+export const articleRoutes = new Router();
+articleRoutes.get("/article", authGuard, getAllArticlesController);
+articleRoutes.post(
+    "/article",
+    validateArticle,
+    authGuard,
+    roleGuard(["admin", "superAdmin"]),
+    createArticlesController
 );
-articleRouter.put(
-  "/:id",
-  authGuard,
-  roleGuard("admin", "superAdmin"),
-  updateArticleById
+articleRoutes.put(
+    "/article/:title",
+    validateArticle,
+    authGuard,
+    roleGuard(["admin", "superAdmin"]),
+    updateArticlesController
 );
-articleRouter.delete(
-  "/:id",
-  authGuard,
-  roleGuard("admin", "superAdmin"),
-  deleteArticleById
+articleRoutes.delete(
+    "/article/:title",
+    authGuard,
+    roleGuard(["superAdmin"]),
+    deleteArticlesController
 );

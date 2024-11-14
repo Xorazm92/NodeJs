@@ -1,135 +1,162 @@
-import jwt from "jsonwebtoken";
-import { User } from "../Schema/index.js";
-import { statusCodes, errorMessages, ApiError } from "../utils/index.js";
+import {
+    statusCodes,
+    errorMessages,
+    ApiError,
+    logger,
+} from "../utils/index.js";
+import {
+    createAdmin,
+    deleteAdmin,
+    login,
+    refresh,
+    register,
+    restorePassword,
+    updateAdmin,
+    verification,
+} from "../service/index.js";
+import { sendMail } from "../helpers/mail.js";
 
 export const registerController = async (req, res, next) => {
-  try {
-    const { email } = req.body;
-
-    const currentUser = await User.findOne({ email });
-
-    if (!currentUser) {
-      const otp = otpGenerator();
-
-      await sendMail(email, "OTP", `this is your OTP: ${otp}`);
-
-      const user = new User(req.body);
-      await user.save();
-
-      const db_otp = new OTP({
-        user_id: user._id,
-        otp_code: otp,
-      });
-
-      await db_otp.save();
-      return res.status(statusCodes.CREATED).send("created");
+    try {
+        const { email, role } = req.body;
+        const currentUser = await register(email, role, req.body);
+        return res.status(statusCodes.CREATED).send(currentUser);
+    } catch (error) {
+        logger.error(error);
+        next(new ApiError(error.statusCode, error.message));
     }
-    return res
-      .status(statusCodes.CONFLICT)
-      .send(errorMessages.EMAIL_ALREADY_EXISTS);
-  } catch (error) {
-    console.log(error);
-    next(new ApiError(error.statusCode, error.message));
-  }
 };
-
-
 export const loginController = async (req, res, next) => {
-  try {
-    const { email, password } = req.body;
-    const currentUser = await User.findOne({ email });
+    try {
+        const { email, password } = req.body;
 
-    if (!currentUser) {
-      return res
-        .status(statusCodes.NOT_FOUND)
-        .send(errorMessages.USER_NOT_FOUND);
+        const currentUser = await login(email, password);
+        return res.send({
+            accessToken: currentUser.access,
+            refreshToken: currentUser.refresh,
+        });
+    } catch (error) {
+        logger.error(error);
+        next(new ApiError(error.statusCode, error.message));
     }
-
-    const passwordIsEqual = await currentUser.compare(password);
-
-    console.log(passwordIsEqual);
-    if (!passwordIsEqual) {
-      return res
-        .status(statusCodes.BAD_REQUEST)
-        .send(errorMessages.INVALID_CREDENTIALS);
+};
+export const refreshTokenController = async (req, res, next) => {
+    try {
+        const { token } = req.body;
+        const refreshedTokens = await refresh(token);
+        return res.send({
+            accessToken: refreshedTokens.accessToken,
+            refreshToken: refreshedTokens.refreshToken,
+        });
+    } catch (error) {
+        logger.error(error);
+        next(new ApiError(error.statusCode, error.message));
     }
-
-    const payload = {
-      sub: email,
-      role: currentUser.role,
-    };
-
-    const accessSecretKey = process.env.JWT_ACCESS_SECRET;
-    const refreshSecretKey = process.env.JWT_REFRESH_SECRET;
-
-    const accessToken = jwt.sign(payload, accessSecretKey, {
-      expiresIn: process.env.JWT_ACCESS_EXPIRES_IN,
-    });
-
-    const refreshToken = jwt.sign(payload, refreshSecretKey, {
-      expiresIn: process.env.JWT_REFRESH_EXPIRES_IN,
-    });
-
-    return res.send({
-      accessToken,
-      refreshToken,
-    });
-  } catch (error) {
-    next(new ApiError(error.statusCode, error.message));
-  }
 };
 
-
-export const refreshTokenController = async (req, res, next) => {
-  try {
-    const { token } = req.body;
-    jwt.verify(token, process.env.JWT_REFRESH_SECRET, (error, decode) => {
-      if (error)
-        throw new Error(statusCodes.FORBIDDEN, errorMessages.FORBIDDEN);
-
-      logger.info({ decode });
-
-      const accessToken = jwt.sign(
-        {
-          sub: decode.sub,
-          role: decode.role,
-        },
-        process.env.JWT_ACCESS_SECRET,
-        {
-          expiresIn: process.env.JWT_ACCESS_EXPIRES_IN,
-        }
-      );
-
-      return res.send({ accessToken, refreshToken: token });
-    });
-  } catch (error) {
-    next(new ApiError(error.statusCode, error.message));
-  }
+export const adminController = async (req, res, next) => {
+    try {
+        const { email } = req.body;
+        const result = await createAdmin(email, req.body);
+        return res.status(statusCodes.CREATED).send(result);
+    } catch (error) {
+        logger.error(error);
+        next(new ApiError(error.statusCode, error.message));
+    }
+};
+export const updateAdminController = async (req, res, next) => {
+    try {
+        const email = req.params.email;
+        let { password, newpassword, name, role } = req.body;
+        const user = await updateAdmin(
+            email,
+            password,
+            newpassword,
+            name,
+            role
+        );
+        res.status(statusCodes.OK).send(user);
+    } catch (error) {
+        logger.error(error);
+        next(new ApiError(error.statusCode || 500, error.message));
+    }
+};
+export const deleteAdminController = async (req, res, next) => {
+    try {
+        const email = req.params.email;
+        const users = await deleteAdmin(email);
+        res.status(statusCodes.OK).send(users);
+    } catch (error) {
+        logger.error(error);
+        next(new ApiError(error.statusCode, error.message));
+    }
 };
 
 export const verifyController = async (req, res, next) => {
-  try {
-    const { otp, email } = req.body;
-
-    const currentUser = await User.findOne({ email });
-    const currentOtp = await OTP.findOne({ user_id: currentUser._id });
-
-    const isEqual = currentOtp.verify(otp);
-
-    if (!isEqual) {
-      return res.send("OTP is not valid");
+    try {
+        const {  email } = req.body;
+        const verifyAcc = await verification(email, otp);
+        res.status(statusCodes.OK).send(verifyAcc);
+    } catch (error) {
+        logger.error(error);
+        next(new ApiError(error.statusCode, error.message));
     }
+};
+export const forgetPasswordController = async (req, res, next) => {
+    try {
+         const {token} = req.params
+         const {password} = req.body
 
-    await OTP.deleteOne({ user_id: currentUser._id });
-    await User.updateOne(
-      { email },
-      {
-        is_active: true,
-      }
-    );
 
-    res.send("user is actived");
-  } catch (error) {
-    next(new ApiError(error.statusCode, error.message));
-  }
+         jwt.verify(token,
+             process.env.JWT_FORGET_PASSWORD_SECRET, 
+             async (err,payload) => {
+            if(err){
+                return res.status(403).send("Forbiddin")
+            }
+            const currentUser = await finddOne({email: payload.sub});
+            currentUser.password = password
+            await currentUser.save()
+            res.send("Update Password")
+            
+         })
+
+
+    } catch (error) {
+        logger.error(error);
+        next(new ApiError(error.statusCode, error.message));
+    }
+};
+
+export const forgetPasswordAndUpdateController = async (req, res, next) => {
+    try {
+        const { email } = req.params; 
+        const currentUser = await User.findOne({ email }); // 
+
+        if (!currentUser) {
+            return res
+                .status(statusCodes.NOT_FOUND)
+                .send(errorMessages.USER_NOT_FOUND);
+        }
+
+        const payload = {
+            sub: email,
+        };
+
+        const token = jwt.sign(payload, process.env.JWT_FORGET_PASSWORD_SECRET, { expiresIn: process.env.JWT_FORGET_EXPIRES_IN }); 
+
+        await sendMail(
+            email,
+            'UPDATE PASSWORD LINK',
+            `This is your UPDATE PASSWORD LINK: http://localhost:3000/auth/forgetPassword/${token}` 
+        );
+
+        return res.status(statusCodes.OK).json({
+            success: true,
+            message: "Link has been sent to your email."
+        });
+    } catch (error) {
+        logger.error(error);
+        next(new ApiError(error.statusCode || 500, error.message || "Internal Server Error"));
+    }
 };

@@ -1,30 +1,30 @@
 import { Router } from "express";
-import { authGuard, roleGuard } from "../middleware/index.js";
 import {
-  addCategory,
-  deleteCategoryById,
-  getCategory,
-  updateCategoryById,
-} from "../controllers/category.Controller.js";
-
-export const categoryRouter = new Router();
-
-categoryRouter.get("/", getCategory);
-categoryRouter.post(
-  "/",
-  authGuard,
-  roleGuard("admin", "superAdmin"),
-  addCategory
+    createCategoryController,
+    deleteCategoryController,
+    getAllCategoryController,
+    updateCategoryController,
+} from "../controllers/index.js";
+import { authGuard, roleGuard, validateCategory } from "../middleware/index.js";
+export const categoryRoutes = new Router();
+categoryRoutes.get("/category", authGuard, getAllCategoryController);
+categoryRoutes.post(
+    "/category",
+    validateCategory,
+    authGuard,
+    roleGuard(["admin", "superAdmin"]),
+    createCategoryController
 );
-categoryRouter.put(
-  "/:id",
-  authGuard,
-  roleGuard("admin", "superAdmin"),
-  updateCategoryById
+categoryRoutes.put(
+    "/category/:name",
+    validateCategory,
+    authGuard,
+    roleGuard(["admin", "superAdmin"]),
+    updateCategoryController
 );
-categoryRouter.delete(
-  "/:id",
-  authGuard,
-  roleGuard("admin", "superAdmin"),
-  deleteCategoryById
+categoryRoutes.delete(
+    "/category/:name",
+    authGuard,
+    roleGuard(["user", "superAdmin"]),
+    deleteCategoryController
 );

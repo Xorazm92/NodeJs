@@ -1,15 +1,26 @@
 import express from "express";
 import morgan from "morgan";
 import dotenv from "dotenv";
-import { authRouter, blogRouter, categoryRouter, commentRouter, userRouter } from "./routes/index.js";
-import { logger } from "./utils/index.js";
-import { articleRouter } from "./routes/article.routes.js";
-import courseRouter from "./routes/course.routes.js";
+import rateLimit from "express-rate-limit";
+// other modules
+import {
+    authRouter,
+    blogRouter,
+    userRouter,
+    categoryRoutes,
+    articleRoutes,
+    commentRouter,
+    courseRouter,
+} from "./routes/index.js";
 
 dotenv.config();
 
 const app = express();
-
+const limiter = rateLimit({
+    windowMs: 60 * 1000,
+    limit: 10,
+});
+app.use(limiter);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
@@ -17,16 +28,15 @@ app.use(morgan("dev"));
 app.use("/auth", authRouter);
 app.use("/blog", blogRouter);
 app.use("/api/v1/users", userRouter);
-app.use("/api/v1/category", categoryRouter);
-app.use("/api/v1", articleRouter);
-app.use("/comment", commentRouter)
-app.use("/course", courseRouter)
-app.use("/api/v1/article", articleRouter);
+app.use("/api/v1", categoryRoutes);
+app.use("/api/v1", articleRoutes);
+app.use("/api/v1", commentRouter);
+app.use("/api/v1", courseRouter);
 
 app.use((err, req, res, next) => {
-  if (err) {
-    return res.status(500).send(err.message);
-  }
+    if (err) {
+        return res.status(500).send(err.message);
+    }
 });
 
 export default app;

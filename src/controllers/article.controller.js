@@ -1,65 +1,50 @@
-import { Article } from "../modules/index.js";
+import {
+    getArticle,
+    createArticle,
+    updateArticle,
+    deleteArticle,
+} from "../service/index.js";
+import { statusCodes, ApiError, errorMessages } from "../utils/index.js";
 
-export const addArticle = async (req, res, next) => {
-  try {
-    const { title, artic, category } = req.body;
-    const newArticle = await Article.create({
-      author_id: req.user._id,
-      title,
-      content,
-      artic,
-    });
-
-    res
-      .status(201)
-      .send({ message: "Article created successfully", newArticle });
-  } catch (error) {
-    res.status(500).send({ message: "Error creating article", error });
-  }
+export const getAllArticlesController = async (req, res, next) => {
+    try {
+        const data = await getArticle();
+        res.status(statusCodes.OK).send({
+            Articles: data,
+        });
+    } catch (error) {
+        next(error);
+    }
 };
-
-export const getArticle = async (req, res, next) => {
-  try {
-    const articles = await Article.find();
-    res.status(200).send(articles);
-  } catch (error) {
-    res.status(500).send({ message: "Error fetching articles", error });
-  }
+export const createArticlesController = async (req, res, next) => {
+    try {
+        const { title, content, author_id, category_id } = req.body;
+        const data = await createArticle(
+            title,
+            content,
+            author_id,
+            category_id
+        );
+        res.status(200).send(data);
+    } catch (error) {
+        next(error);
+    }
 };
-
-export const updateArticleById = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const { title, content, category } = req.body;
-
-    const updatedArticle = await Article.findByIdAndUpdate(
-      id,
-      {
-        title,
-        content,
-        category,
-      },
-      { new: true }
-    );
-
-    res
-      .status(200)
-      .send({ message: "Article updated successfully", updatedArticle });
-  } catch (error) {
-    res.status(500).send({ message: "Error updating article", error });
-  }
+export const updateArticlesController = async (req, res, next) => {
+    try {
+        const title = req.params.title;
+        const update = await updateArticle(title, req.body);
+        res.status(statusCodes.OK).send(update);
+    } catch (error) {
+        next(error);
+    }
 };
-
-export const deleteArticleById = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const deletedArticle = await Article.findByIdAndDelete(id);
-
-    res
-      .status(200)
-      .send({ message: "Article deleted successfully", deletedArticle });
-  } catch (error) {
-    res.status(500).send({ message: "Error deleting article", error });
-  }
+export const deleteArticlesController = async (req, res, next) => {
+    try {
+        const title = req.params.title;
+        const deleted = await deleteArticle(title);
+        res.send(deleted);
+    } catch (error) {
+        next(error);
+    }
 };
