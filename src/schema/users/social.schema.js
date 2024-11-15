@@ -1,0 +1,28 @@
+import { logger } from "../../utils/logger.js"
+import pool from "../../databases/index.js"
+
+export const createSocialTable = async()=>{
+    try {
+
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS social(
+            id SERIAL PRIMARY KEY,
+            name VARCHAR,
+            email VARCHAR UNIQUE NOT NULL,
+            password VARCHAR NOT NULL,
+            role  USER_ROLE DEFAULT 'user',
+            avatar VARCHAR,
+            username VARCHAR UNIQUE NOT NULL,
+            brith_of_date DATE,
+            phone_number VARCHAR UNIQUE NOT NULL,
+            is_active BOOLEAN DEFAULT false,
+            created_at TIMESTAMPTZ,
+            updated_at TIMESTAMPTZ
+          
+            )`
+        )
+        
+    } catch (error) {
+        logger.error(error)
+    }
+}
