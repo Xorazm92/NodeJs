@@ -5,6 +5,8 @@ import {
 } from '../service/index.js'
 import { logger } from '../utils/logger.js'
 
+
+
 // Get all users
 export const getAllUsers = (req, res, next) => {
     try {

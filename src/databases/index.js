@@ -4,8 +4,7 @@ import { config } from "../config/index.js"
 const {Pool} =pg
 // console.log(config);
 
-
-export const pool = new Pool({
+const pool = new Pool({
     user: config.db.user,
     password: config.db.password,
     host: config.db.host,
