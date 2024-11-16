@@ -1,78 +1,71 @@
+import { logger } from '../utils/logger.js'
+import {
+    createCategoryService,
+    deleteCategoryService,
+    getAllCategoryService,
+    getByIdCategoryService,
+    updateCategoryService,
+} from '../service/index.js'
+import { categoryValidation } from '../validation/index.js'
 
-export const addCategory = async (req, res) => {
+export const getAllCategory = async (req, res, next) => {
     try {
-      const {error, value} = categoryValidation(req.body)
-  
-      if (error) {
-        return res.status(400).send({ message: error.message });
-      }
-  
-      const { category_name, parent_category_id } = value;
-      const category = await Category.findOne({
-        category_name: { $regex: category_name, $options: "i" },
-      });
-      if (category) {
-        return res.status(400).send({ message: "Bunday category_name mavjud" });
-      }
-      const newcategory = await Category.create({
-        category_name,
-        parent_category_id,
-      });
-      res
-        .status(201)
-        .send({ message: "Yangi category_name qo'shildi", newcategory });
+        const allCategory = await getAllCategoryService()
+        return res.status(200).send({ status: 'Success', data: allCategory })
     } catch (error) {
-      errorHandler(res, error);
+        next(error)
     }
-  };
-  
-  export const getCategories = async (req, res) => {
+}
+
+export const getByIdCategory = async (req, res, next) => {
     try {
-      const categories = await Category.find();
-      res.send(categories);
+        const message = await getByIdCategoryService(req.params.id)
+        if (message.status === 'NOTFOUND') {
+            return res.status(404).send('Bunday Id li malumot topilmadi')
+        }
+        return res.status(200).send({ ststus: 'Success', data: message.data })
     } catch (error) {
-      logger.error(error)
+        next(error)
     }
-  };
-  
-  export const updateCategory = async (req, res) => {
+}
+
+export const createCategory = async (req, res, next) => {
     try {
-      const { id } = req.params;
-      const { category_name } = req.body;
-      const updatedcategory = await Category.findByIdAndUpdate(
-        id,
-        { category_name },
-        { new: true }
-      );
-      res
-        .status(200)
-        .send({ message: "category_name updated succesfuly", updatedcategory });
+        const { error, value } = categoryValidation(req.body)
+        if (error) {
+            return res.status(400).send({
+                status: error.message,
+                msg: 'malumot notogri tartipda kiritilgan',
+            })
+        }
+        const data = await createCategoryService(req.body)
+        console.log(data)
+        return res.status(201).send({ ststus: 'created', data })
     } catch (error) {
-      logger.error(error)
+        next(error)
     }
-  };
-  
-  export const deleteCategory = async (req, res) => {
+}
+
+export const updateCategory = async (req, res, next) => {
     try {
-      const { id } = req.params;
-      const deletedcategory = await Category.findByIdAndDelete(id);
-      res
-        .status(200)
-        .send({ message: "category_name deleted succesfuly", deletedcategory });
+        const message = await updateCategoryService(req.params.id, req.body)
+        if (message.status === 'NOTFOUND') {
+            return res.status(404).send('Bunday Id li malumot topilmadi')
+        }
+        return res.status(200).send({ ststus: 'Success', id: req.params.id })
     } catch (error) {
-      logger.error(error)
+        next(error)
     }
-  };
-  
- export const getCategoryById = async (req, res) => {
+}
+
+export const deleteCategory = async (req, res, next) => {
     try {
-      const { id } = req.params;
-      const category = await Category.findById(id);
-      if (!category) {
-        return res.status(404).send({ message: "category_name mavjud emas" });
-      }
-      res.send(category);
+        const message = await deleteCategoryService(req.params.id)
+        if (message.status === 'NOTFOUND') {
+            return res.status(404).send('Bunday Id li malumot topilmadi')
+        }
+        return res.status(200).send({ ststus: 'Success', id: message.data })
     } catch (error) {
-      logger.error(error)
+        next(error)
     }
-  };
+}
