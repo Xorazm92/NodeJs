@@ -1,0 +1,692 @@
+{
+    "id": "0",
+    "name": "gravity-database",
+    "createdAt": "2024-11-22T14:25:17.816Z",
+    "updatedAt": "2024-11-22T14:25:17.816Z",
+    "databaseType": "postgresql",
+    "tables": [
+      {
+        "id": "1",
+        "name": "account",
+        "schema": "public",
+        "x": 1143.964915093803,
+        "y": 249.9697453340316,
+        "fields": [
+          {
+            "id": "2",
+            "name": "id",
+            "type": {
+              "id": "character_varying",
+              "name": "character varying"
+            },
+            "primaryKey": true,
+            "unique": true,
+            "nullable": false,
+            "createdAt": 1732267782652
+          },
+          {
+            "id": "3",
+            "name": "email",
+            "type": {
+              "id": "character_varying",
+              "name": "character varying"
+            },
+            "primaryKey": false,
+            "unique": false,
+            "nullable": false,
+            "createdAt": 1732267782652
+          },
+          {
+            "id": "4",
+            "name": "date_created",
+            "type": {
+              "id": "timestamp_with_time_zone",
+              "name": "timestamp with time zone"
+            },
+            "primaryKey": false,
+            "unique": false,
+            "nullable": false,
+            "default": "now()",
+            "createdAt": 1732267782652
+          },
+          {
+            "id": "5",
+            "name": "stripe_customer_id",
+            "type": {
+              "id": "character_varying",
+              "name": "character varying"
+            },
+            "primaryKey": false,
+            "unique": false,
+            "nullable": true,
+            "createdAt": 1732267782652
+          },
+          {
+            "id": "6",
+            "name": "stripe_subscription_id",
+            "type": {
+              "id": "character_varying",
+              "name": "character varying"
+            },
+            "primaryKey": false,
+            "unique": false,
+            "nullable": true,
+            "createdAt": 1732267782652
+          },
+          {
+            "id": "7",
+            "name": "plan",
+            "type": {
+              "id": "character_varying",
+              "name": "character varying"
+            },
+            "primaryKey": false,
+            "unique": false,
+            "nullable": true,
+            "createdAt": 1732267782652
+          },
+          {
+            "id": "8",
+            "name": "referrer",
+            "type": {
+              "id": "character_varying",
+              "name": "character varying"
+            },
+            "primaryKey": false,
+            "unique": false,
+            "nullable": true,
+            "createdAt": 1732267782652
+          },
+          {
+            "id": "9",
+            "name": "active",
+            "type": {
+              "id": "boolean",
+              "name": "boolean"
+            },
+            "primaryKey": false,
+            "unique": false,
+            "nullable": true,
+            "default": "true",
+            "createdAt": 1732267782652
+          }
+        ],
+        "indexes": [
+          {
+            "id": "10",
+            "name": "account_pkey",
+            "unique": true,
+            "fieldIds": [
+              "2"
+            ],
+            "createdAt": 1732267782652
+          }
+        ],
+        "color": "#4dee8a",
+        "isView": false,
+        "isMaterializedView": false,
+        "createdAt": 1732267782652,
+        "diagramId": "gravity_db"
+      },
+      {
+        "id": "11",
+        "name": "assignment",
+        "x": 597.8709424565593,
+        "y": 168.94821666753583,
+        "fields": [
+          {
+            "id": "12",
+            "name": "id",
+            "type": {
+              "name": "serial",
+              "id": "serial"
+            },
+            "unique": true,
+            "nullable": false,
+            "primaryKey": true,
+            "createdAt": 1732268271215
+          },
+          {
+            "id": "13",
+            "name": "course_id",
+            "type": {
+              "name": "integer",
+              "id": "integer"
+            },
+            "unique": true,
+            "nullable": true,
+            "primaryKey": false,
+            "createdAt": 1732268297166
+          },
+          {
+            "id": "14",
+            "name": "student_id",
+            "type": {
+              "name": "integer",
+              "id": "integer"
+            },
+            "unique": true,
+            "nullable": true,
+            "primaryKey": false,
+            "createdAt": 1732268312001
+          },
+          {
+            "id": "15",
+            "name": "teacher_id",
+            "type": {
+              "name": "integer",
+              "id": "integer"
+            },
+            "unique": true,
+            "nullable": true,
+            "primaryKey": false,
+            "createdAt": 1732268319374
+          }
+        ],
+        "indexes": [],
+        "color": "#8eb7ff",
+        "createdAt": 1732268271215,
+        "isView": false,
+        "schema": "public",
+        "diagramId": "gravity_db"
+      },
+      {
+        "id": "16",
+        "name": "courses",
+        "x": 47.87258507010233,
+        "y": 747.5867126496287,
+        "fields": [
+          {
+            "id": "17",
+            "name": "id",
+            "type": {
+              "name": "serial",
+              "id": "serial"
+            },
+            "unique": true,
+            "nullable": false,
+            "primaryKey": true,
+            "createdAt": 1732268186034
+          },
+          {
+            "id": "18",
+            "name": "name",
+            "type": {
+              "name": "varchar",
+              "id": "varchar"
+            },
+            "unique": false,
+            "nullable": true,
+            "primaryKey": false,
+            "createdAt": 1732268213883
+          },
+          {
+            "id": "19",
+            "name": "desc",
+            "type": {
+              "name": "varchar",
+              "id": "varchar"
+            },
+            "unique": false,
+            "nullable": true,
+            "primaryKey": false,
+            "createdAt": 1732268222154
+          },
+          {
+            "id": "20",
+            "name": "start_time",
+            "type": {
+              "name": "timestamp with time zone",
+              "id": "timestamp_with_time_zone"
+            },
+            "unique": false,
+            "nullable": true,
+            "primaryKey": false,
+            "createdAt": 1732268241133
+          },
+          {
+            "id": "21",
+            "name": "end_time",
+            "type": {
+              "name": "timestamp with time zone",
+              "id": "timestamp_with_time_zone"
+            },
+            "unique": false,
+            "nullable": true,
+            "primaryKey": false,
+            "createdAt": 1732268251415
+          }
+        ],
+        "indexes": [],
+        "color": "#9ef07a",
+        "createdAt": 1732268186034,
+        "isView": false,
+        "schema": "public",
+        "diagramId": "gravity_db"
+      },
+      {
+        "id": "22",
+        "name": "payment",
+        "schema": "public",
+        "x": 1162.1264293617721,
+        "y": -63.8290183511076,
+        "fields": [
+          {
+            "id": "23",
+            "name": "id",
+            "type": {
+              "id": "integer",
+              "name": "integer"
+            },
+            "primaryKey": true,
+            "unique": true,
+            "nullable": false,
+            "default": "nextval('payment_id_seq'::regclass)",
+            "createdAt": 1732267782652
+          },
+          {
+            "id": "24",
+            "name": "account_id",
+            "type": {
+              "id": "character_varying",
+              "name": "character varying"
+            },
+            "primaryKey": false,
+            "unique": false,
+            "nullable": false,
+            "createdAt": 1732267782652
+          },
+          {
+            "id": "25",
+            "name": "amount",
+            "type": {
+              "id": "numeric",
+              "name": "numeric"
+            },
+            "primaryKey": false,
+            "unique": false,
+            "nullable": false,
+            "precision": 10,
+            "scale": 2,
+            "createdAt": 1732267782652
+          },
+          {
+            "id": "26",
+            "name": "currency",
+            "type": {
+              "id": "character_varying",
+              "name": "character varying"
+            },
+            "primaryKey": false,
+            "unique": false,
+            "nullable": false,
+            "default": "'USD'::character varying",
+            "createdAt": 1732267782652
+          },
+          {
+            "id": "27",
+            "name": "payment_date",
+            "type": {
+              "id": "timestamp_with_time_zone",
+              "name": "timestamp with time zone"
+            },
+            "primaryKey": false,
+            "unique": false,
+            "nullable": false,
+            "default": "now()",
+            "createdAt": 1732267782652
+          },
+          {
+            "id": "28",
+            "name": "status",
+            "type": {
+              "id": "character_varying",
+              "name": "character varying"
+            },
+            "primaryKey": false,
+            "unique": false,
+            "nullable": false,
+            "createdAt": 1732267782652
+          },
+          {
+            "id": "29",
+            "name": "stripe_payment_id",
+            "type": {
+              "id": "character_varying",
+              "name": "character varying"
+            },
+            "primaryKey": false,
+            "unique": true,
+            "nullable": true,
+            "createdAt": 1732267782652
+          }
+        ],
+        "indexes": [
+          {
+            "id": "30",
+            "name": "payment_stripe_payment_id_key",
+            "unique": true,
+            "fieldIds": [
+              "29"
+            ],
+            "createdAt": 1732267782652
+          },
+          {
+            "id": "31",
+            "name": "payment_pkey",
+            "unique": true,
+            "fieldIds": [
+              "23"
+            ],
+            "createdAt": 1732267782652
+          },
+          {
+            "id": "32",
+            "name": "idx_payment_account_id",
+            "unique": false,
+            "fieldIds": [
+              "24"
+            ],
+            "createdAt": 1732267782652
+          }
+        ],
+        "color": "#ff9f74",
+        "isView": false,
+        "isMaterializedView": false,
+        "createdAt": 1732267782652,
+        "diagramId": "gravity_db"
+      },
+      {
+        "id": "33",
+        "name": "students",
+        "x": 655.5262134526666,
+        "y": 534.0469759979713,
+        "fields": [
+          {
+            "id": "34",
+            "name": "id",
+            "type": {
+              "name": "serial",
+              "id": "serial"
+            },
+            "unique": true,
+            "nullable": false,
+            "primaryKey": true,
+            "createdAt": 1732268060913
+          },
+          {
+            "id": "35",
+            "name": "permission",
+            "type": {
+              "name": "boolean",
+              "id": "boolean"
+            },
+            "unique": false,
+            "nullable": true,
+            "primaryKey": false,
+            "createdAt": 1732268150210
+          },
+          {
+            "id": "36",
+            "name": "user_id",
+            "type": {
+              "name": "integer",
+              "id": "integer"
+            },
+            "unique": false,
+            "nullable": true,
+            "primaryKey": false,
+            "createdAt": 1732268501626
+          }
+        ],
+        "indexes": [],
+        "color": "#8a61f5",
+        "createdAt": 1732268060913,
+        "isView": false,
+        "schema": "public",
+        "diagramId": "gravity_db"
+      },
+      {
+        "id": "37",
+        "name": "teachers",
+        "x": -163.0907204508684,
+        "y": 528.8756054692117,
+        "fields": [
+          {
+            "id": "38",
+            "name": "id",
+            "type": {
+              "name": "serial",
+              "id": "serial"
+            },
+            "unique": true,
+            "nullable": false,
+            "primaryKey": true,
+            "createdAt": 1732268358708
+          },
+          {
+            "id": "39",
+            "name": "user_id",
+            "type": {
+              "name": "integer",
+              "id": "integer"
+            },
+            "unique": false,
+            "nullable": true,
+            "primaryKey": false,
+            "createdAt": 1732268369566
+          }
+        ],
+        "indexes": [],
+        "color": "#ff9f74",
+        "createdAt": 1732268358708,
+        "isView": false,
+        "schema": "public",
+        "diagramId": "gravity_db"
+      },
+      {
+        "id": "40",
+        "name": "users",
+        "schema": "public",
+        "x": 100,
+        "y": 100,
+        "fields": [
+          {
+            "id": "41",
+            "name": "id",
+            "type": {
+              "name": "serial",
+              "id": "serial"
+            },
+            "primaryKey": true,
+            "unique": true,
+            "nullable": false,
+            "createdAt": 1732267782652
+          },
+          {
+            "id": "42",
+            "name": "name",
+            "type": {
+              "id": "character_varying",
+              "name": "character varying"
+            },
+            "primaryKey": false,
+            "unique": false,
+            "nullable": true,
+            "createdAt": 1732267782652
+          },
+          {
+            "id": "43",
+            "name": "email",
+            "type": {
+              "id": "character_varying",
+              "name": "character varying"
+            },
+            "primaryKey": false,
+            "unique": false,
+            "nullable": false,
+            "createdAt": 1732267782652
+          },
+          {
+            "id": "44",
+            "name": "password",
+            "type": {
+              "id": "character_varying",
+              "name": "character varying"
+            },
+            "primaryKey": false,
+            "unique": false,
+            "nullable": false,
+            "createdAt": 1732267782652
+          },
+          {
+            "id": "45",
+            "name": "date_created",
+            "type": {
+              "id": "timestamp_with_time_zone",
+              "name": "timestamp with time zone"
+            },
+            "primaryKey": false,
+            "unique": false,
+            "nullable": false,
+            "default": "now()",
+            "createdAt": 1732267782652
+          },
+          {
+            "id": "46",
+            "name": "last_login",
+            "type": {
+              "id": "timestamp_with_time_zone",
+              "name": "timestamp with time zone"
+            },
+            "primaryKey": false,
+            "unique": false,
+            "nullable": true,
+            "createdAt": 1732267782652
+          },
+          {
+            "id": "47",
+            "name": "account_id",
+            "type": {
+              "id": "character_varying",
+              "name": "character varying"
+            },
+            "primaryKey": false,
+            "unique": true,
+            "nullable": true,
+            "createdAt": 1732267782652
+          },
+          {
+            "id": "48",
+            "name": "role",
+            "type": {
+              "name": "enum",
+              "id": "enum"
+            },
+            "unique": false,
+            "nullable": true,
+            "primaryKey": false,
+            "createdAt": 1732267985664
+          }
+        ],
+        "indexes": [
+          {
+            "id": "49",
+            "name": "user_pkey",
+            "unique": true,
+            "fieldIds": [
+              "41"
+            ],
+            "createdAt": 1732267782652
+          },
+          {
+            "id": "50",
+            "name": "idx_user_account_id",
+            "unique": false,
+            "fieldIds": [
+              "47"
+            ],
+            "createdAt": 1732267782652
+          }
+        ],
+        "color": "#ffe374",
+        "isView": false,
+        "isMaterializedView": false,
+        "createdAt": 1732267782652,
+        "diagramId": "gravity_db"
+      }
+    ],
+    "relationships": [
+      {
+        "id": "51",
+        "name": "assignment_course_id_fk",
+        "sourceSchema": "public",
+        "sourceTableId": "11",
+        "targetSchema": "public",
+        "targetTableId": "16",
+        "sourceFieldId": "13",
+        "targetFieldId": "17",
+        "sourceCardinality": "one",
+        "targetCardinality": "one",
+        "createdAt": 1732268429798,
+        "diagramId": "gravity_db"
+      },
+      {
+        "id": "52",
+        "name": "students_id_fk",
+        "sourceSchema": "public",
+        "sourceTableId": "33",
+        "targetSchema": "public",
+        "targetTableId": "11",
+        "sourceFieldId": "34",
+        "targetFieldId": "14",
+        "sourceCardinality": "one",
+        "targetCardinality": "one",
+        "createdAt": 1732268419659,
+        "diagramId": "gravity_db"
+      },
+      {
+        "id": "53",
+        "name": "students_user_id_fk",
+        "sourceSchema": "public",
+        "sourceTableId": "33",
+        "targetSchema": "public",
+        "targetTableId": "40",
+        "sourceFieldId": "36",
+        "targetFieldId": "41",
+        "sourceCardinality": "one",
+        "targetCardinality": "one",
+        "createdAt": 1732268513988,
+        "diagramId": "gravity_db"
+      },
+      {
+        "id": "54",
+        "name": "teachers_id_fk",
+        "sourceSchema": "public",
+        "sourceTableId": "37",
+        "targetSchema": "public",
+        "targetTableId": "11",
+        "sourceFieldId": "38",
+        "targetFieldId": "15",
+        "sourceCardinality": "one",
+        "targetCardinality": "one",
+        "createdAt": 1732268425089,
+        "diagramId": "gravity_db"
+      },
+      {
+        "id": "55",
+        "name": "teachers_user_id_fk",
+        "sourceSchema": "public",
+        "sourceTableId": "37",
+        "targetSchema": "public",
+        "targetTableId": "40",
+        "sourceFieldId": "39",
+        "targetFieldId": "41",
+        "sourceCardinality": "one",
+        "targetCardinality": "one",
+        "createdAt": 1732268490554,
+        "diagramId": "gravity_db"
+      }
+    ],
+    "dependencies": []
+  }
