@@ -9,8 +9,8 @@ export const development = {
     host: 'localhost',
     port: 5432,
     user: 'postgres', 
-    password: '3636',
-    database: 'erp',
+    password: 'postgres',
+    database: 'knex',
   },
 };
 export const staging = {
