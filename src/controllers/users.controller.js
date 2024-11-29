@@ -17,9 +17,7 @@ export const createUserController = async (c) => {
             data: newData[0].id,
         }, 201)
     } catch (error) {
-        logger.error(error.message)
 
-        next(error)
     }
 }
 
@@ -31,9 +29,7 @@ export const getAllUserController = async (c) => {
             data: allData,
         },200)
     } catch (error) {
-        logger.error(error.message)
 
-        next(error)
     }
 }
 
@@ -46,8 +42,7 @@ export const getByIdUserController = async (c) => {
             data: data,
         },200)
     } catch (error) {
-        logger.error(error.message)
-        next(error)
+
     }
 }
 
@@ -62,8 +57,7 @@ export const getBySearchUserController = async (c) => {
             data: data,
         }, 200)
     } catch (error) {
-        logger.error(error.message)
-        next(error)
+
     }
 }
 
@@ -77,8 +71,7 @@ export const updateUserController = async (c) => {
             data: data[0].id,
         }, 200)
     } catch (error) {
-        logger.error(error.message)
-        next(error)
+
     }
 }
 
@@ -91,7 +84,6 @@ export const deleteUserController = async (c) => {
             data: data[0].id,
         }, 200)
     } catch (error) {
-        logger.error(error.message)
-        next(error)
+
     }
 }

@@ -25,7 +25,7 @@ export const getAllPostController = async (c) => {
             post,
         })
     } catch (error) {
-        next(error)
+
     }
 }
 
@@ -46,7 +46,7 @@ export const getOnePostController = async (c) => {
             post,
         },200)
     } catch (error) {
-        next(error)
+
     }
 }
 
@@ -59,7 +59,7 @@ export const createPostController = async (c) => {
             review: newPost[0],
         },201)
     } catch (error) {
-        next(error)
+
     }
 }
 
@@ -85,7 +85,7 @@ export const updatePostController = async (c) => {
             post: updated[0],
         },200)
     } catch (error) {
-        next(error)
+
     }
 }
 
@@ -107,6 +107,6 @@ export const deletePostController = async (req, res, next) => {
             message: 'Review deleted successfully',
         },201)
     } catch (error) {
-        next(error)
+
     }
 }

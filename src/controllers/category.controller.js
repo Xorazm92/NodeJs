@@ -17,7 +17,7 @@ export const getallCategoryController = async (c) => {
             return c.json({ Status: 'Success', page, limit, categories },200)
         }
     } catch (error) {
-        next(error)
+       
     }
 }
 
@@ -35,7 +35,7 @@ export const getoneCategoryController = async (c) => {
             return c.json({ Status: 'Success', category },200)
         }
     } catch (error) {
-        next(error)
+   
     }
 }
 
@@ -51,7 +51,7 @@ export const createCategoryController = async (c) => {
         },201)
     } catch (error) {
         logger.error(error)
-        next(error)
+  
     }
 }
 
@@ -69,7 +69,7 @@ export const updateCategoryController = async (req, res, next) => {
             return c.json({ status: 'Not Found', message: 'No Category found' },404)
         }
     } catch (error) {
-        next(error)
+
     }
 }
 
@@ -91,6 +91,6 @@ export const deleteCategoryController = async (c) => {
             message: 'Category deleted Successfully',
         },200)
     } catch (error) {
-        next(error)
+
     }
 }
