@@ -1,12 +1,17 @@
 {
-    "name": "my-app",
-    "type": "module",
-    "scripts": {
-        "dev": "node --watch src/index.js"
-    },
-    "dependencies": {
-        "@hono/node-server": "^1.13.7",
-        "hono": "^4.6.12",
-        "knex": "^3.1.0"
-    }
+  "name": "my-app",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.7",
+    "hono": "^4.6.12",
+    "knex": "^3.1.0",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.17",
+    "tsx": "^4.7.1"
+  }
 }
