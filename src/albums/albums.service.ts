@@ -1,26 +1,53 @@
-import { Injectable } from '@nestjs/common';
+// Albums modeli
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
+import { InjectModel } from '@nestjs/sequelize';
+import { Albums } from './models/albums.model';
 
 @Injectable()
 export class AlbumsService {
-  create(createAlbumDto: CreateAlbumDto) {
-    return 'This action adds a new album';
+  constructor(
+    @InjectModel(Albums) private albumsModel: typeof Albums,
+  ) {}
+
+  // Albom yaratish
+  async create(createAlbumDto: CreateAlbumDto): Promise<Albums> {
+    const album = await this.albumsModel.create(createAlbumDto);
+    return album;
   }
 
-  findAll() {
-    return `This action returns all albums`;
+  // Barcha albomlarni olish
+  async findAll(): Promise<Albums[]> {
+    const albums = await this.albumsModel.findAll({ include: { all: true } });
+    return albums;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} album`;
+  // ID bo‘yicha albomni olish
+  async findOneById(id: number): Promise<Albums> {
+    const album = await this.albumsModel.findByPk(id);
+    if (!album) {
+      throw new NotFoundException(`Album with ID ${id} not found.`);
+    }
+    return album;
   }
 
-  update(id: number, updateAlbumDto: UpdateAlbumDto) {
-    return `This action updates a #${id} album`;
+  // Albomni yangilash
+  async update(id: number, updateAlbumDto: UpdateAlbumDto): Promise<Albums> {
+    const album = await this.albumsModel.findByPk(id);
+    if (!album) {
+      throw new NotFoundException(`Album with ID ${id} not found.`);
+    }
+    await album.update(updateAlbumDto);
+    return album;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} album`;
+  // Albomni o‘chirish
+  async delete(id: number): Promise<void> {
+    const album = await this.albumsModel.findByPk(id);
+    if (!album) {
+      throw new NotFoundException(`Album with ID ${id} not found.`);
+    }
+    await album.destroy();
   }
 }
