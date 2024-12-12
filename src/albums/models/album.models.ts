@@ -5,7 +5,7 @@ interface AlbumsAt {
   grammy: boolean;
 }
 
-@Table({ tableName: "albums", timestamps: false }) // `timestamps` to'g'ri yozildi
+@Table({ tableName: "albums", timestamps: false }) 
 export class Albums extends Model<Albums, AlbumsAt> {
   @Column({
     type: DataType.INTEGER,

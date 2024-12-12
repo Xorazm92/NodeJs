@@ -4,50 +4,48 @@ import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { Albums } from './models/albums.model';
+import { AlbumsModule } from './albums.module';
 
 @Injectable()
 export class AlbumsService {
   constructor(
-    @InjectModel(Albums) private albumsModel: typeof Albums,
+    @InjectModel(Albums) private albumsModel: typeof Albums
   ) {}
 
-  // Albom yaratish
-  async create(createAlbumDto: CreateAlbumDto): Promise<Albums> {
-    const album = await this.albumsModel.create(createAlbumDto);
-    return album;
+ 
+  async createAlbums(createAlbumDto: CreateAlbumDto): Promise<Albums> {
+    const toalbum = await this.albumsModel.create(createAlbumDto);
+    return createAlbumDto;
   }
 
-  // Barcha albomlarni olish
   async findAll(): Promise<Albums[]> {
-    const albums = await this.albumsModel.findAll({ include: { all: true } });
-    return albums;
+    const toalbums = await this.albumsModel.findAll({ include: { all: true } });
+    return toalbums;
   }
 
-  // ID bo‘yicha albomni olish
   async findOneById(id: number): Promise<Albums> {
-    const album = await this.albumsModel.findByPk(id);
-    if (!album) {
+    const toalbum = await this.albumsModel.findByPk(id);
+    if (!toalbum) {
       throw new NotFoundException(`Album with ID ${id} not found.`);
     }
-    return album;
+    return toalbum;
   }
 
-  // Albomni yangilash
   async update(id: number, updateAlbumDto: UpdateAlbumDto): Promise<Albums> {
-    const album = await this.albumsModel.findByPk(id);
-    if (!album) {
+    const toalbum = await this.albumsModel.findByPk(id);
+    if (!toalbum) {
       throw new NotFoundException(`Album with ID ${id} not found.`);
     }
-    await album.update(updateAlbumDto);
-    return album;
+    await toalbum.update(updateAlbumDto);
+    return toalbum;
   }
 
-  // Albomni o‘chirish
+
   async delete(id: number): Promise<void> {
-    const album = await this.albumsModel.findByPk(id);
-    if (!album) {
+    const toalbum = await this.albumsModel.findByPk(id);
+    if (!toalbum) {
       throw new NotFoundException(`Album with ID ${id} not found.`);
     }
-    await album.destroy();
+    await toalbum.destroy();
   }
 }
