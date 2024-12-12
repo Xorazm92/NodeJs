@@ -1,26 +1,50 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { InjectModel } from '@nestjs/sequelize';
+import { Users } from './models/user.model';
+
 
 @Injectable()
 export class UsersService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
-  }
+  constructor(
+    @InjectModel(Users)private UsersModule: typeof Users,
 
+  ){}
+  async createUsers(createUserDto: CreateUserDto)
+  {
+    const newUser = await this.UsersModule.create(createUserDto)
+    return newUser
+    }
+  
   findAll() {
-    return `This action returns all users`;
+    return this.UsersModule.findAll({include:{all:true}})
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} user`;
+    return this.UsersModule.findByPk(id)
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: number, updateUserDto: UpdateUserDto):Promise<Users> {
+    const users = await this.UsersModule.findByPk(id);
+  
+    if (!users) {
+      throw new NotFoundException(`Users with ID ${id} not found...`);
+    }
+    
+    users.update(updateUserDto)
+        
+    return users; 
+  }
+  
+  async remove(id: number):Promise<void> {
+    const users = await this.UsersModule.findByPk(id);
+    if (!users) {
+      throw new NotFoundException(`Users with ID ${id} not found...`);
+    }
+    await users.destroy();
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
-  }
 }
+
+

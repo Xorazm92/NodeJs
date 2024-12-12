@@ -6,6 +6,10 @@ import { AlbumsModule } from "./albums/albums.module";
 import { FavoritesModule } from "./favorites/favorites.module";
 import { ConfigModule } from "@nestjs/config";
 import { SequelizeModule } from "@nestjs/sequelize";
+import { UsersController } from "./users/users.controller";
+import { UsersService } from "./users/users.service";
+import { Users } from "./users/models/user.model";
+
 
 @Module({
   imports: [
@@ -22,10 +26,14 @@ import { SequelizeModule } from "@nestjs/sequelize";
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
+
+      models: [
+        Users,
+      ],
     }),
   ],
-  controllers: [],
-  providers: [],
-  exports: [],
+  controllers: [UsersController],
+  providers: [UsersService],
+  exports: [UsersService],
 })
 export class AppModule {}

@@ -1,23 +1,17 @@
-import { Model } from "sequelize";
-import {
-  AllowNull,
-  AutoIncrement,
-  Column,
-  DataType,
-  PrimaryKey,
-  Table,
-} from "sequelize-typescript";
+import { 
+  Column, 
+  DataType, 
+  Table, Model 
+} from 'sequelize-typescript';
 
-interface UserCreat {
+interface UserCreate {
   login: string;
   password: string;
   version: number; // integer number, increments on update
 }
 
-import { Table, Column, Model, DataType } from 'sequelize-typescript';
-
 @Table({ tableName: "users", timestamps: false })
-export class Users extends Model<Users, UserCreat> {
+export class Users extends Model<Users, UserCreate> {
   @Column({
     type: DataType.INTEGER,
     autoIncrement: true, // Kichik harfda
@@ -41,4 +35,3 @@ export class Users extends Model<Users, UserCreat> {
   })
   version: number;
 }
-
