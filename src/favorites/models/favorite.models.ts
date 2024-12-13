@@ -76,8 +76,8 @@ import {
   } from 'sequelize-typescript';
   import { Albums } from 'src/albums/models/album.models';
   import { Users } from 'src/users/models/user.model';
-  import { Artists } from 'src/artists/models/artist.model'; // Artists modeli import qilindi
-  import { Tracks } from 'src/tracks/models/track.model'; // Tracks modeli import qilindi
+//   import { Artists } from 'src/artists/models/artist.model'; 
+//   import { Tracks } from 'src/tracks/models/track.model'; 
   
   interface FavoriteCreate {
     userId: number;
@@ -104,14 +104,14 @@ import {
     @BelongsTo(() => Users)
     user: Users;
   
-    @ForeignKey(() => Artists)
-    @Column({
-      type: DataType.INTEGER
-    })
-    artistId: number;
+    // @ForeignKey(() => Artists)
+    // @Column({
+    //   type: DataType.INTEGER
+    // })
+    // artistId: number;
   
-    @BelongsTo(() => Artists)
-    artist: Artists;
+    // @BelongsTo(() => Artists)
+    // artist: Artists;
   
     @ForeignKey(() => Albums)
     @Column({
@@ -122,12 +122,14 @@ import {
     @BelongsTo(() => Albums)
     album: Albums;
   
-    @ForeignKey(() => Tracks)
-    @Column({
-      type: DataType.INTEGER
-    })
-    trackId: number;
+//     @ForeignKey(() => Tracks)
+//     @Column({
+//       type: DataType.INTEGER
+//     })
+//     trackId: number;
   
-    @BelongsTo(() => Tracks)
-    track: Tracks;
+//     @BelongsTo(() => Tracks)
+//     track: Tracks;
+
+
   }
