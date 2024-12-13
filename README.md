@@ -97,3 +97,53 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+
+
+Qisqacha mazmuni:
+📝 Loyihaning asosiy maqsadlari:
+
+Foydalanuvchi boshqaruvi
+
+
+Ro'yxatdan o'tish
+Profilni yangilash
+Parolni o'zgartirish
+Foydalanuvchi hisobini o'chirish
+
+
+Musiqa elementlarini boshqarish
+
+
+Artists (Artistlar)
+Albums (Albomlar)
+Tracks (Qo'shiqlar)
+Har bir elementni yaratish, o'qish, yangilash va o'chirish
+
+
+Sevimlilар (Favorites) funksiyasi
+
+
+Artistlarni, albomlarni va qo'shiqlarni sevimlilarga qo'shish
+Sevimlilerdan o'chirish
+Barcha sevimlilerni ko'rsatish
+
+🔑 Asosiy texnik xususiyatlar:
+
+REST API arxitekturasi
+TypeScript va NestJS
+PostgreSQL ma'lumotlar bazasi
+TypeORM ORM
+UUID bilan identifikatsiya
+Har bir so'rov uchun tegishli status kodlar
+Ma'lumotlarni validatsiya qilish
+
+💡 Qisqacha misol:
+Foydalanuvchi platformaga kiradi va:
+
+Yangi artist qo'shadi
+Album yaratadi
+Shu albumga qo'shiqlar qo'shadi
+Eng yaxshi qo'shiqlarni sevimlilarga saqlaydi
+
+Loyihaning asosiy maqsadi - tam funktional, kengaytirilgan va xavfsiz musiqa kutubxonasi xizmatini yaratishdir.

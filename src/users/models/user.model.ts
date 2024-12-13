@@ -7,21 +7,21 @@ import {
 interface UserCreate {
   login: string;
   password: string;
-  version: number; // integer number, increments on update
+  version: number;
 }
 
 @Table({ tableName: "users", timestamps: false })
 export class Users extends Model<Users, UserCreate> {
   @Column({
     type: DataType.INTEGER,
-    autoIncrement: true, // Kichik harfda
+    autoIncrement: true, 
     primaryKey: true,
   })
   id?: number;
 
   @Column({
     type: DataType.STRING,
-    allowNull: true, // Kichik harfda
+    allowNull: true,
   })
   login?: string;
 

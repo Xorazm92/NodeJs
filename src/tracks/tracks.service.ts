@@ -1,19 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
+import { InjectModel } from '@nestjs/sequelize';
+import { TrackStatus } from './models/track.models';
 
 @Injectable()
 export class TracksService {
+  constructor(
+    @InjectModel(TrackStatus) private TrackStatusModel: typeof TrackStatus
+  ){}
+
   create(createTrackDto: CreateTrackDto) {
-    return 'This action adds a new track';
+    return this.TrackStatusModel.create(CreateTrackDto);
   }
 
   findAll() {
-    return `This action returns all tracks`;
+    return this.TrackStatusModel.findAll({include: {all:true}});
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} track`;
+    return this.TrackStatusModel.findByPk(id);
   }
 
   update(id: number, updateTrackDto: UpdateTrackDto) {
