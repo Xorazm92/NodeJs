@@ -1,26 +1,43 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { InjectModel } from '@nestjs/sequelize';
+import { Post } from './models/post.model';
 
 @Injectable()
 export class PostsService {
+  constructor(
+    @InjectModel(Post) private postmodel: typeof Post
+  ) {}
+
   create(createPostDto: CreatePostDto) {
-    return 'This action adds a new post';
+    return this.postmodel.create(createPostDto)
   }
 
   findAll() {
-    return `This action returns all posts`;
+    return this.postmodel.findAll({include:{all:true}})
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} post`;
+    return this.postmodel.findByPk(id);
   }
 
-  update(id: number, updatePostDto: UpdatePostDto) {
-    return `This action updates a #${id} post`;
+  async update(id: number, updatePostDto: UpdatePostDto):Promise<Post>{
+    const post = await this.postmodel.findByPk(id);
+
+    if(!post){
+      throw new NotFoundException(`Bu ${id} li commit topilmadi`)
+    }
+    post.update(updatePostDto)
+        
+    return post
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} post`;
+  async remove(id: number): Promise <void> {
+    const post = await this.postmodel.findByPk(id);
+    if(!post){
+      throw new NotFoundException (`Bu ${id} li commit topilmadi`);
+    }
+    await post.destroy();
   }
 }
