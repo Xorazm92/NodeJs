@@ -3,6 +3,8 @@ import { UsersModule } from './users/users.module';
 import { Users } from './users/models/user.models'; // Modelni to'g'ri import qilish
 import { SequelizeModule } from '@nestjs/sequelize';
 import { ConfigModule } from '@nestjs/config'; // ConfigModule ni import qiling
+import { CommentsModule } from './comments/comments.module';
+import { PostsModule } from './posts/posts.module';
 
 @Module({
   imports: [
@@ -21,6 +23,8 @@ import { ConfigModule } from '@nestjs/config'; // ConfigModule ni import qiling
       logging: false,
       models: [Users], 
     }),
+    CommentsModule,
+    PostsModule,
   ],
   controllers: [],
   providers: [],
