@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config'; // ConfigModule ni import qiling
 import { CommentsModule } from './comments/comments.module';
 import { PostsModule } from './posts/posts.module';
 import { AuthModule } from './auth/auth.module';
+import { RoleModule } from './role/role.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { AuthModule } from './auth/auth.module';
     CommentsModule,
     PostsModule,
     AuthModule,
+    RoleModule,
   ],
   controllers: [],
   providers: [],
