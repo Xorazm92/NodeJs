@@ -3,6 +3,10 @@ import { User } from './model/user';
 
 @Injectable()
 export class UsersService {
+  [x: string]: any;
+  findUserByEmail(email: string) {
+    throw new Error('Method not implemented.');
+  }
     constructor(
         @InjectModel(User)
         private userModel: typeof User,
@@ -16,5 +20,5 @@ export class UsersService {
     
         return user.update(updateProfileDto);
       }
-    }
+    
 }

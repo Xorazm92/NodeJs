@@ -1,7 +1,9 @@
 
 
-import { Body, Controller, Param, Put, UseGuards } from "@nestjs/common";
+import { Body, Controller, Param, Post, Put, UploadedFile, UseGuards } from "@nestjs/common";
 import { UsersService } from "./users.service";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { Express } from "express";
 
 @Controller('users')
 export class UsersController {
@@ -15,4 +17,14 @@ export class UsersController {
   ) {
     return this.usersService.updateProfile(userId, updateProfileDto);
   }
+
+
+  @Post('profile')
+  @UseInterceptors(FileInterceptor('avatar'))
+  uploadFile(@UploadedFile() file: Express.Multer.File) {
+  console.log(file);
+  return file
+}
+
+
 }

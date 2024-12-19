@@ -1,4 +1,3 @@
-import { ApiProperty } from "@nestjs/swagger"
 import { Column, DataType, Model, Table } from "sequelize-typescript"
 
 interface AdminCreationAttr{
@@ -12,12 +11,7 @@ interface AdminCreationAttr{
 
 @Table({tableName:"admin", timestamps:false})
 export class Admin extends Model<Admin, AdminCreationAttr>{
-    @ApiProperty(
-        {
-            example: 1,
-            description: "Admini id raqami (auto increment)"
-        }
-    )
+
     @Column(
     {
         type:DataType.INTEGER,
@@ -26,12 +20,7 @@ export class Admin extends Model<Admin, AdminCreationAttr>{
     })
     id?: number
 
-    @ApiProperty(
-        {
-            example: 2,
-            description: "Admini ismi"
-        }
-    )
+
     @Column(
     {
         type:DataType.STRING,
@@ -39,12 +28,6 @@ export class Admin extends Model<Admin, AdminCreationAttr>{
     })
     name:string
 
-    @ApiProperty(
-        {
-            example: 3,
-            description: "Admini logini"
-        }
-    )
     @Column(
     {
         type:DataType.STRING,
@@ -52,12 +35,7 @@ export class Admin extends Model<Admin, AdminCreationAttr>{
     })
     login:string
 
-    @ApiProperty(
-        {
-            example: 4,
-            description: "Admini heshlangan paroli"
-        }
-    )
+
     @Column(
     {
         type:DataType.STRING,
@@ -65,12 +43,6 @@ export class Admin extends Model<Admin, AdminCreationAttr>{
     })
     hashed_password:string
 
-    @ApiProperty(
-        {
-            example: 5,
-            description: "Admini activ yoki activmasligi haqida malimot yozladi"
-        }
-    )
     @Column(
     {
         type:DataType.BOOLEAN,
@@ -78,12 +50,7 @@ export class Admin extends Model<Admin, AdminCreationAttr>{
     })
     is_active:boolean
 
-    @ApiProperty(
-        {
-            example: 5,
-            description: "Admini creator yoki creatormasligi haqida malimot yozladi"
-        }
-    )
+
     @Column(
     {
         type:DataType.BOOLEAN,
@@ -91,12 +58,6 @@ export class Admin extends Model<Admin, AdminCreationAttr>{
     })
     is_creator:boolean
 
-    @ApiProperty(
-        {
-            example: 5,
-            description: "Admini hashed refresh tokeni haqida malimot yozladi"
-        }
-    )
     @Column(
     {
         type:DataType.STRING

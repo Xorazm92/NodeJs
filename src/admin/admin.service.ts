@@ -1,13 +1,11 @@
 import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
-import { InjectModel } from '@nestjs/sequelize';
 import { Admin } from './models/admin.model';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from "bcrypt"
 import { SignInDto } from './dto/signin.dto';
 import { CreateUserDto } from '../users/dto/create-user.dto';
-import { Users } from '../users/models/user.model';
 import { UsersService } from '../users/users.service';
 
 @Injectable()
@@ -27,7 +25,8 @@ export class AdminService {
         createUserDto.email
     );
 
-    if(candidate)
+    if (candidate !== undefined && candidate !== null) 
+
         throw new BadRequestException("User already exists...")
     
     const hashedPassword = await bcrypt.hash(createUserDto.password, 7)
@@ -46,7 +45,7 @@ async signIn(signInDto:SignInDto){
     if(!user)
         throw new UnauthorizedException("User not found...")
 
-    const validPassword = await bcrypt.compare(signInDto.password,user.password)
+    const validPassword = await bcrypt.compare(signInDto.password, user.password)
 
     if(!validPassword)
     throw new UnauthorizedException("User not found...")
@@ -91,3 +90,7 @@ async generateToken(user:Users){
     await admin.destroy();
   }
 }
+function InjectModel(admin: typeof Admin): (target: typeof AdminService, propertyKey: undefined, parameterIndex: 0) => void {
+  throw new Error('Function not implemented.');
+}
+
