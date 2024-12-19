@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body,Param, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body,Param, Delete, Put, UploadedFile } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
 import { SignInDto } from './dto/signin.dto';
 import { CreateUserDto } from '../users/dto/create-user.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 
 @Controller('admin')
@@ -14,7 +15,16 @@ export class AdminController {
   @Post()
   create(@Body() createAdminDto: CreateAdminDto) {
     return this.adminService.create(createAdminDto);
+
   }
+
+  @Post('profile')
+  @UseInterceptors(FileInterceptor('avatar'))
+  uploadFile(@UploadedFile() file: Express.Multer.File) {
+    console.log(file);
+    return file;
+  }
+
 
 
   @Post("signup")
