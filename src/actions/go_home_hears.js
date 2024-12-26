@@ -1,29 +1,24 @@
-import { bot } from "../core/bot.js";
-import { Keyboard } from "grammy";
+const { bot } = require("../core/bot");
+const { Keyboard } = require("grammy");
 
-bot.hears("🏠 Bosh sahifa", async (ctx) => {
-  await ctx.reply(`<b>Bosh sahifa!</b>`, {
-    parse_mode: "HTML",
-    reply_markup: new Keyboard()
-      .text("🔍 E'lonlarni ko'rish")
-      .text("📣 E'lon berish")
-      .row()
-      .text("♻️ Tilni o'zgartirish")
-      .row()
-      .oneTime()
-      .resized(),
-  });
-});
-bot.hears("🏠 Home page", async (ctx) => {
-  await ctx.reply(`<b>Home page!</b>`, {
-    parse_mode: "HTML",
-    reply_markup: new Keyboard()
-      .text("🔍 Show Advertisement")
-      .text("📣 Give Advertisement")
-      .row()
-      .row()
-      .text("♻️ Change language")
-      .oneTime()
-      .resized(),
-  });
-});
+const go_home_hears = async (ctx) => {
+    try {
+        await ctx.reply("Bosh menyu", {
+            reply_markup: {
+                keyboard: [
+                    ["🔍 Sherik kerak", "🎯 Ish joyi kerak"],
+                    ["👨‍💼 Xodim kerak", "👨‍🏫 Ustoz kerak"],
+                    ["👨‍🎓 Shogird kerak"]
+                ],
+                resize_keyboard: true,
+                one_time_keyboard: true
+            }
+        });
+    } catch (err) {
+        console.error(err);
+    }
+};
+
+module.exports = {
+    go_home_hears
+};

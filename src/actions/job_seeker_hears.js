@@ -1,20 +1,18 @@
-const { Markup } = require('telegraf');
-const { job_seeker_scene } = require('../scenes/job_seeker.scene');
+const { Keyboard } = require('grammy');
 
 const job_seeker_hears = async (ctx) => {
     try {
-        const message = `Ish joyi topish uchun ariza berish\n\nHozir sizga birnecha savollar beriladi.\nHar biriga javob bering.\nOxirida agar hammasi to'g'ri bo'lsa, HA tugmasini bosing va arizangiz Adminga yuboriladi.`;
-        
-        await ctx.reply(message, {
-            parse_mode: 'HTML',
-            ...Markup.keyboard([
-                ["❌ Bekor qilish"]
-            ])
-            .oneTime()
-            .resize()
+        await ctx.reply("Ish joyi topish uchun ariza berish", {
+            reply_markup: {
+                keyboard: [
+                    ["❌ Bekor qilish", "🏠 Bosh menyu"]
+                ],
+                resize_keyboard: true,
+                one_time_keyboard: true
+            }
         });
-
-        ctx.scene.enter('job_seeker_scene');
+        ctx.session.step = 'waiting_job_seeker_name';
+        await ctx.reply("Ism, familiyangizni kiriting?");
     } catch (err) {
         console.error(err);
     }

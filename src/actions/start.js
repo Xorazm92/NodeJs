@@ -31,31 +31,36 @@ async function start(ctx) {
     const message = `Assalomu alaykum <b>${ctx.from.first_name}</b>!\n\nMen IT sohasida sherik, xodim, ustoz va shogird topishga yordam beruvchi botman.\n\nKerakli bo'limni tanlang:`;
     
     await ctx.reply(message, {
-        parse_mode: 'HTML',
+        parse_mode: "HTML",
         reply_markup: {
-            keyboard: [
-                ["🔍 Sherik kerak", "🎯 Ish joyi kerak"],
-                ["👨‍💼 Xodim kerak", "👨‍🏫 Ustoz kerak"],
-                ["👨‍🎓 Shogird kerak"]
-            ],
-            resize_keyboard: true,
-            one_time_keyboard: true
+            inline_keyboard: [
+                [{ text: "🔍 Sherik kerak", callback_data: "sherik" }, { text: "🎯 Ish joyi kerak", callback_data: "ish" }],
+                [{ text: "👨‍💼 Xodim kerak", callback_data: "xodim" }, { text: "👨‍🏫 Ustoz kerak", callback_data: "ustoz" }],
+                [{ text: "👨‍🎓 Shogird kerak", callback_data: "shogird" }]
+            ]
         }
     });
 }
 
 // Help buyrug'ini qayta ishlash
 async function help(ctx) {
-    const helpText = `<b>Bot buyruqlari:</b>\n\n` +
-        `/sherik - Sherik topish uchun ariza berish\n` +
-        `/ish - Ish joyi topish uchun ariza berish\n` +
-        `/xodim - Xodim topish uchun ariza berish\n` +
-        `/ustoz - Ustoz topish uchun ariza berish\n` +
-        `/shogird - Shogird topish uchun ariza berish\n\n` +
-        `<i>Yuqoridagi har bir buyruq orqali o'zingizga mos keluvchi sherik/ish/xodim/ustoz/shogird topishingiz mumkin.</i>`;
-    
-    await ctx.reply(helpText, {
-        parse_mode: 'HTML'
+    const message = `<b>Botdan foydalanish yo'riqnomasi:</b>\n\n` +
+        `1. Sherik topish uchun - "🔍 Sherik kerak"\n` +
+        `2. Ish topish uchun - "🎯 Ish joyi kerak"\n` +
+        `3. Xodim topish uchun - "👨‍💼 Xodim kerak"\n` +
+        `4. Ustoz topish uchun - "👨‍🏫 Ustoz kerak"\n` +
+        `5. Shogird topish uchun - "👨‍🎓 Shogird kerak"\n\n` +
+        `❗️ Har bir bo'limda kerakli ma'lumotlarni kiritasiz va adminlar tomonidan tekshirilgandan so'ng kanalda e'lon qilinadi.`;
+
+    await ctx.reply(message, {
+        parse_mode: "HTML",
+        reply_markup: {
+            inline_keyboard: [
+                [{ text: "🔍 Sherik kerak", callback_data: "sherik" }, { text: "🎯 Ish joyi kerak", callback_data: "ish" }],
+                [{ text: "👨‍💼 Xodim kerak", callback_data: "xodim" }, { text: "👨‍🏫 Ustoz kerak", callback_data: "ustoz" }],
+                [{ text: "👨‍🎓 Shogird kerak", callback_data: "shogird" }]
+            ]
+        }
     });
 }
 

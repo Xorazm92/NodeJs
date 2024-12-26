@@ -1,20 +1,21 @@
-const { Markup } = require('telegraf');
-const { employee_search_scene } = require('../scenes/employee_search.scene');
+const { Keyboard } = require('grammy');
 
 const employee_search_hears = async (ctx) => {
     try {
         const message = `Xodim topish uchun ariza berish\n\nHozir sizga birnecha savollar beriladi.\nHar biriga javob bering.\nOxirida agar hammasi to'g'ri bo'lsa, HA tugmasini bosing va arizangiz Adminga yuboriladi.`;
         
         await ctx.reply(message, {
-            parse_mode: 'HTML',
-            ...Markup.keyboard([
-                ["❌ Bekor qilish"]
-            ])
-            .oneTime()
-            .resize()
+            reply_markup: {
+                keyboard: [
+                    ["❌ Bekor qilish", "🏠 Bosh menyu"]
+                ],
+                resize_keyboard: true,
+                one_time_keyboard: true
+            }
         });
 
-        ctx.scene.enter('employee_search_scene');
+        ctx.session.step = 'waiting_employee_company';
+        await ctx.reply("Kompaniya nomini kiriting?");
     } catch (err) {
         console.error(err);
     }

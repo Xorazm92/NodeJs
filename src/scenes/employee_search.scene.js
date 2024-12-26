@@ -1,169 +1,115 @@
-const { Scenes, Markup } = require('telegraf');
-const { bot } = require('../core/bot');
+const { Composer } = require('grammy');
+const { Menu } = require('@grammyjs/menu');
 
-const employee_search_scene = new Scenes.WizardScene(
-    'employee_search_scene',
-    // Step 1: Ask for company/organization name
-    async (ctx) => {
-        ctx.wizard.state.employeeData = {};
-        await ctx.reply("🏢 Idora nomi?");
-        return ctx.wizard.next();
-    },
-    // Step 2: Get company name and ask for technology requirements
-    async (ctx) => {
-        if (ctx.message?.text === "❌ Bekor qilish") {
-            await ctx.reply("Amaliyot bekor qilindi", {
-                reply_markup: { remove_keyboard: true }
-            });
-            return ctx.scene.leave();
+const employee_search_scene = new Composer();
+
+// Bekor qilish va Bosh menyu tugmalarini tekshirish
+employee_search_scene.hears(['❌ Bekor qilish', '🏠 Bosh menyu'], async (ctx) => {
+    ctx.session.step = null;
+    ctx.session.data = {};
+    await ctx.reply('Bosh menyuga qaytdingiz', {
+        reply_markup: {
+            keyboard: [
+                ["🔍 Sherik kerak", "🎯 Ish joyi kerak"],
+                ["👨‍💼 Xodim kerak", "👨‍🏫 Ustoz kerak"],
+                ["👨‍🎓 Shogird kerak"]
+            ],
+            resize_keyboard: true,
+            one_time_keyboard: true
         }
+    });
+});
 
-        ctx.wizard.state.employeeData.companyName = ctx.message.text;
-        
-        await ctx.reply("💻 Texnologiya:\n\nTalab qilinadigan texnologiyalarni kiriting?\nTexnologiya nomlarini vergul bilan ajrating. Masalan,\njava, C++, C#", {
-            parse_mode: 'HTML'
-        });
-        
-        return ctx.wizard.next();
-    },
-    // Step 3: Get technology and ask for contact
-    async (ctx) => {
-        if (ctx.message?.text === "❌ Bekor qilish") {
-            await ctx.reply("Amaliyot bekor qilindi", {
-                reply_markup: { remove_keyboard: true }
-            });
-            return ctx.scene.leave();
-        }
+// Xodim qidirish
+employee_search_scene.on('message', async (ctx) => {
+    if (!ctx.session.step) return;
 
-        ctx.wizard.state.employeeData.technologies = ctx.message.text;
-        
-        await ctx.reply("📞 Aloqa:\n\nBog'lanish uchun raqamingizni kiriting?\nMasalan, +998 90 123 45 67", {
-            parse_mode: 'HTML'
-        });
-        
-        return ctx.wizard.next();
-    },
-    // Step 4: Get contact and ask for location
-    async (ctx) => {
-        if (ctx.message?.text === "❌ Bekor qilish") {
-            await ctx.reply("Amaliyot bekor qilindi", {
-                reply_markup: { remove_keyboard: true }
-            });
-            return ctx.scene.leave();
-        }
+    switch (ctx.session.step) {
+        case 'waiting_employee_company':
+            if (!ctx.message.text) {
+                await ctx.reply("Iltimos, kompaniya nomini text formatida kiriting");
+                return;
+            }
+            ctx.session.data.company = ctx.message.text;
+            ctx.session.step = 'waiting_employee_technology';
+            await ctx.reply("Qaysi texnologiyalarni bilishi kerak?");
+            break;
 
-        ctx.wizard.state.employeeData.phone = ctx.message.text;
-        
-        await ctx.reply("📍 Hudud:\n\nQaysi hududdansiz?\nViloyat nomi, Toshkent shahar yoki Respublikani kiriting.", {
-            parse_mode: 'HTML'
-        });
-        
-        return ctx.wizard.next();
-    },
-    // Step 5: Get location and ask if it's official job
-    async (ctx) => {
-        if (ctx.message?.text === "❌ Bekor qilish") {
-            await ctx.reply("Amaliyot bekor qilindi", {
-                reply_markup: { remove_keyboard: true }
-            });
-            return ctx.scene.leave();
-        }
+        case 'waiting_employee_technology':
+            ctx.session.data.technology = ctx.message.text;
+            ctx.session.step = 'waiting_employee_phone';
+            await ctx.reply("Telefon raqamingizni kiriting?\nMasalan: +998 90 123 45 67");
+            break;
 
-        ctx.wizard.state.employeeData.location = ctx.message.text;
-        
-        await ctx.reply("👨‍💼 Mas'ul ism sharifi?", {
-            parse_mode: 'HTML'
-        });
-        
-        return ctx.wizard.next();
-    },
-    // Step 6: Get responsible person's name and ask for working hours
-    async (ctx) => {
-        if (ctx.message?.text === "❌ Bekor qilish") {
-            await ctx.reply("Amaliyot bekor qilindi", {
-                reply_markup: { remove_keyboard: true }
-            });
-            return ctx.scene.leave();
-        }
+        case 'waiting_employee_phone':
+            const phoneRegex = /^\+998\s?\d{2}\s?\d{3}\s?\d{2}\s?\d{2}$/;
+            if (!phoneRegex.test(ctx.message.text.replace(/\s+/g, ''))) {
+                await ctx.reply("Iltimos, telefon raqamingizni to'g'ri formatda kiriting\nMasalan: +998 90 123 45 67");
+                return;
+            }
+            ctx.session.data.phone = ctx.message.text;
+            ctx.session.step = 'waiting_employee_location';
+            await ctx.reply("Kompaniya manzilini kiriting?");
+            break;
 
-        ctx.wizard.state.employeeData.responsiblePerson = ctx.message.text;
-        
-        await ctx.reply("⏰ Murojaat qilish vaqti:\n\nQaysi vaqtda murojaat qilish mumkin?", {
-            parse_mode: 'HTML'
-        });
-        
-        return ctx.wizard.next();
-    },
-    // Step 7: Get working hours and show confirmation
-    async (ctx) => {
-        if (ctx.message?.text === "❌ Bekor qilish") {
-            await ctx.reply("Amaliyot bekor qilindi", {
-                reply_markup: { remove_keyboard: true }
-            });
-            return ctx.scene.leave();
-        }
+        case 'waiting_employee_location':
+            ctx.session.data.location = ctx.message.text;
+            ctx.session.step = 'waiting_employee_responsible';
+            await ctx.reply("Mas'ul ism sharifi?");
+            break;
 
-        ctx.wizard.state.employeeData.contactHours = ctx.message.text;
-        
-        const confirmMessage = `<b>Ma'lumotlar to'g'riligini tekshiring:</b>\n\n` +
-            `🏢 Idora: ${ctx.wizard.state.employeeData.companyName}\n` +
-            `💻 Texnologiyalar: ${ctx.wizard.state.employeeData.technologies}\n` +
-            `📞 Aloqa: ${ctx.wizard.state.employeeData.phone}\n` +
-            `📍 Hudud: ${ctx.wizard.state.employeeData.location}\n` +
-            `👨‍💼 Mas'ul: ${ctx.wizard.state.employeeData.responsiblePerson}\n` +
-            `⏰ Murojaat vaqti: ${ctx.wizard.state.employeeData.contactHours}\n\n` +
-            `Ma'lumotlar to'g'rimi?`;
-        
-        await ctx.reply(confirmMessage, {
-            parse_mode: 'HTML',
-            ...Markup.keyboard([
-                ["✅ Ha", "🔄 Qaytadan"],
-                ["❌ Bekor qilish"]
-            ])
-            .oneTime()
-            .resize()
-        });
-        
-        return ctx.wizard.next();
-    },
-    // Step 8: Handle confirmation
-    async (ctx) => {
-        if (ctx.message?.text === "❌ Bekor qilish") {
-            await ctx.reply("Amaliyot bekor qilindi", {
-                reply_markup: { remove_keyboard: true }
-            });
-            return ctx.scene.leave();
-        }
+        case 'waiting_employee_responsible':
+            ctx.session.data.responsiblePerson = ctx.message.text;
+            ctx.session.step = 'waiting_employee_contact_hours';
+            await ctx.reply("Murojaat qilish vaqti?");
+            break;
 
-        if (ctx.message?.text === "🔄 Qaytadan") {
-            await ctx.reply("Qaytadan ma'lumotlarni kiritish", {
-                reply_markup: { remove_keyboard: true }
-            });
-            return ctx.scene.enter('employee_search_scene');
-        }
+        case 'waiting_employee_contact_hours':
+            ctx.session.data.contactHours = ctx.message.text;
+            ctx.session.step = 'confirm';
 
-        if (ctx.message?.text === "✅ Ha") {
-            const notificationMessage = `<b>Yangi xodim qidirish e'loni!</b>\n\n` +
-                `🏢 Idora: ${ctx.wizard.state.employeeData.companyName}\n` +
-                `💻 Texnologiyalar: ${ctx.wizard.state.employeeData.technologies}\n` +
-                `📞 Aloqa: ${ctx.wizard.state.employeeData.phone}\n` +
-                `📍 Hudud: ${ctx.wizard.state.employeeData.location}\n` +
-                `👨‍💼 Mas'ul: ${ctx.wizard.state.employeeData.responsiblePerson}\n` +
-                `⏰ Murojaat vaqti: ${ctx.wizard.state.employeeData.contactHours}`;
+            // Ma'lumotlarni tasdiqlash
+            const confirmMessage = `Quyidagi ma'lumotlar to'g'rimi?\n\n` +
+                `🏢 Kompaniya: ${ctx.session.data.company}\n` +
+                `💻 Texnologiyalar: ${ctx.session.data.technology}\n` +
+                `📞 Tel: ${ctx.session.data.phone}\n` +
+                `📍 Manzil: ${ctx.session.data.location}\n` +
+                `👨‍💼 Mas'ul: ${ctx.session.data.responsiblePerson}\n` +
+                `⏰ Murojaat vaqti: ${ctx.session.data.contactHours}`;
 
-            // Send to admin
-            await bot.telegram.sendMessage(process.env.ADMIN_ID, notificationMessage, {
-                parse_mode: 'HTML'
-            });
+            const menu = new Menu('confirm-menu')
+                .text('✅ Ha', async (ctx) => {
+                    // Ma'lumotlarni adminga yuborish
+                    const adminMessage = `Yangi xodim qidirish e'loni:\n\n` +
+                        `🏢 Kompaniya: ${ctx.session.data.company}\n` +
+                        `💻 Texnologiyalar: ${ctx.session.data.technology}\n` +
+                        `📞 Tel: ${ctx.session.data.phone}\n` +
+                        `📍 Manzil: ${ctx.session.data.location}\n` +
+                        `👨‍💼 Mas'ul: ${ctx.session.data.responsiblePerson}\n` +
+                        `⏰ Murojaat vaqti: ${ctx.session.data.contactHours}`;
 
-            await ctx.reply("✅ Arizangiz muvaffaqiyatli yuborildi.\nAdminlar tez orada ko'rib chiqishadi.", {
-                reply_markup: { remove_keyboard: true }
-            });
-        }
+                    await ctx.api.sendMessage(process.env.ADMIN_ID, adminMessage);
+                    await ctx.reply("E'loningiz adminga yuborildi. Tez orada kanalda e'lon qilinadi!");
+                    
+                    // Sessiyani tozalash
+                    ctx.session.step = null;
+                    ctx.session.data = {};
+                })
+                .text('❌ Yo\'q', (ctx) => {
+                    ctx.session.step = 'waiting_employee_company';
+                    ctx.reply("Kompaniya nomini kiriting?");
+                });
 
-        return ctx.scene.leave();
+            await ctx.reply(confirmMessage, { reply_markup: menu });
+            break;
     }
-);
+});
+
+// Xodim qidirishni boshlash
+employee_search_scene.hears('👨‍💼 Xodim kerak', async (ctx) => {
+    ctx.session.step = 'waiting_employee_company';
+    await ctx.reply("Kompaniya nomini kiriting?");
+});
 
 module.exports = {
     employee_search_scene

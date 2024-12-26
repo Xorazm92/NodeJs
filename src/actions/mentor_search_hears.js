@@ -1,20 +1,18 @@
-const { Markup } = require('telegraf');
-const { mentor_search_scene } = require('../scenes/mentor_search.scene');
+const { Keyboard } = require('grammy');
 
 const mentor_search_hears = async (ctx) => {
     try {
-        const message = `Ustoz topish uchun ariza berish\n\nHozir sizga birnecha savollar beriladi.\nHar biriga javob bering.\nOxirida agar hammasi to'g'ri bo'lsa, HA tugmasini bosing va arizangiz Adminga yuboriladi.`;
-        
-        await ctx.reply(message, {
-            parse_mode: 'HTML',
-            ...Markup.keyboard([
-                ["❌ Bekor qilish"]
-            ])
-            .oneTime()
-            .resize()
+        await ctx.reply("Ustoz topish uchun ariza berish", {
+            reply_markup: {
+                keyboard: [
+                    ["❌ Bekor qilish", "🏠 Bosh menyu"]
+                ],
+                resize_keyboard: true,
+                one_time_keyboard: true
+            }
         });
-
-        ctx.scene.enter('mentor_search_scene');
+        ctx.session.step = 'waiting_mentor_name';
+        await ctx.reply("Ism, familiyangizni kiriting?");
     } catch (err) {
         console.error(err);
     }
