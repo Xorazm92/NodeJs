@@ -7,6 +7,8 @@ const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const winston = require('winston');
 const { bot } = require('./src/core/bot.js');
+const scenes = require('./src/scenes');
+const actions = require('./src/actions');
 
 // Muhit o'zgaruvchilarini sozlash
 config();
@@ -73,6 +75,34 @@ const serverniIshgaTushirish = async () => {
             console.log(`Server ${PORT} portda ishga tushdi`);
         });
 
+        // Scene'larni ulash
+        bot.use(scenes.partner_scene);
+        bot.use(scenes.job_seeker_scene);
+        bot.use(scenes.employee_search_scene);
+        bot.use(scenes.mentor_search_scene);
+        bot.use(scenes.apprentice_search_scene);
+
+        // Command handlers
+        bot.command("start", actions.start);
+        bot.command("help", actions.help);
+        bot.command("sherik", actions.partner_hears);
+        bot.hears("🔍 Sherik kerak", actions.partner_hears);
+        bot.command("ish", actions.job_seeker_hears);
+        bot.hears("🎯 Ish joyi kerak", actions.job_seeker_hears);
+        bot.command("xodim", actions.employee_search_hears);
+        bot.hears("👨‍💼 Xodim kerak", actions.employee_search_hears);
+        bot.command("ustoz", actions.mentor_search_hears);
+        bot.hears("👨‍🏫 Ustoz kerak", actions.mentor_search_hears);
+        bot.command("shogird", actions.apprentice_search_hears);
+        bot.hears("👨‍🎓 Shogird kerak", actions.apprentice_search_hears);
+
+        // Callback handlers
+        bot.callbackQuery("sherik", actions.partner_hears);
+        bot.callbackQuery("ish", actions.job_seeker_hears);
+        bot.callbackQuery("xodim", actions.employee_search_hears);
+        bot.callbackQuery("ustoz", actions.mentor_search_hears);
+        bot.callbackQuery("shogird", actions.apprentice_search_hears);
+
         // Bot commands
         await bot.api.setMyCommands([
             { command: 'start', description: 'Botni ishga tushirish' },
@@ -85,8 +115,12 @@ const serverniIshgaTushirish = async () => {
         ]);
 
         // Botni ishga tushirish
-        bot.start();
-        console.log('Bot muvaffaqiyatli ishga tushdi');
+        bot.start({
+            drop_pending_updates: true,
+            onStart: (botInfo) => {
+                console.log(`@${botInfo.username} bot muvaffaqiyatli ishga tushdi`);
+            },
+        });
 
     } catch (err) {
         console.error('Serverni ishga tushirishda xatolik:', err);

@@ -1,4 +1,5 @@
 const { User } = require('../models/user.model.js');
+const { Keyboard } = require('grammy');
 
 // Foydalanuvchini tekshirish va saqlash
 async function checkUser(ctx) {
@@ -33,11 +34,13 @@ async function start(ctx) {
     await ctx.reply(message, {
         parse_mode: "HTML",
         reply_markup: {
-            inline_keyboard: [
-                [{ text: "🔍 Sherik kerak", callback_data: "sherik" }, { text: "🎯 Ish joyi kerak", callback_data: "ish" }],
-                [{ text: "👨‍💼 Xodim kerak", callback_data: "xodim" }, { text: "👨‍🏫 Ustoz kerak", callback_data: "ustoz" }],
-                [{ text: "👨‍🎓 Shogird kerak", callback_data: "shogird" }]
-            ]
+            keyboard: [
+                ["🔍 Sherik kerak", "🎯 Ish joyi kerak"],
+                ["👨‍💼 Xodim kerak", "👨‍🏫 Ustoz kerak"],
+                ["👨‍🎓 Shogird kerak"]
+            ],
+            resize_keyboard: true,
+            one_time_keyboard: true
         }
     });
 }
@@ -55,11 +58,13 @@ async function help(ctx) {
     await ctx.reply(message, {
         parse_mode: "HTML",
         reply_markup: {
-            inline_keyboard: [
-                [{ text: "🔍 Sherik kerak", callback_data: "sherik" }, { text: "🎯 Ish joyi kerak", callback_data: "ish" }],
-                [{ text: "👨‍💼 Xodim kerak", callback_data: "xodim" }, { text: "👨‍🏫 Ustoz kerak", callback_data: "ustoz" }],
-                [{ text: "👨‍🎓 Shogird kerak", callback_data: "shogird" }]
-            ]
+            keyboard: [
+                ["🔍 Sherik kerak", "🎯 Ish joyi kerak"],
+                ["👨‍💼 Xodim kerak", "👨‍🏫 Ustoz kerak"],
+                ["👨‍🎓 Shogird kerak"]
+            ],
+            resize_keyboard: true,
+            one_time_keyboard: true
         }
     });
 }

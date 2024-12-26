@@ -1,4 +1,3 @@
-const { bot } = require("../core/bot");
 const { Keyboard } = require("grammy");
 
 const go_home_hears = async (ctx) => {
