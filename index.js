@@ -1,15 +1,13 @@
-import express from "express";
-import mongoose from "mongoose";
-import { config } from "dotenv";
-import helmet from "helmet";
-import compression from "compression";
-import cors from "cors";
-import rateLimit from "express-rate-limit";
-import winston from "winston";
-import routes from "./src/routes/index.routes.js";
-
-export * from "./src/core/index.js";
-export * from "./src/actions/index.js";
+const express = require('express');
+const mongoose = require('mongoose');
+const { config } = require('dotenv');
+const helmet = require('helmet');
+const compression = require('compression');
+const cors = require('cors');
+const rateLimit = require('express-rate-limit');
+const winston = require('winston');
+const routes = require('./src/routes/index.routes.js');
+const { bot } = require('./src/core/bot.js');
 
 // Muhit o'zgaruvchilarini sozlash
 config();
@@ -33,25 +31,25 @@ if (process.env.NODE_ENV !== 'production') {
   }));
 }
 
+// Express ilovasini yaratish
 const app = express();
 
-// Xavfsizlik uchun middleware
+// Middleware'larni sozlash
 app.use(helmet());
+app.use(compression());
 app.use(cors());
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 // So'rovlar sonini cheklash
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 daqiqa
-  max: 100 // har bir IP uchun 15 daqiqada 100 ta so'rov
+  windowMs: 15 * 60 * 1000,
+  max: 100
 });
 app.use(limiter);
 
-// Siqish middleware
-app.use(compression());
-
-// So'rov tanasini tahlil qilish uchun middleware
-app.use(express.json({ limit: '10kb' }));
-app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+// Routelarni ulash
+app.use("/api/v1", routes);
 
 // So'rovlarni qayd qilish middleware
 app.use((req, res, next) => {
@@ -61,9 +59,6 @@ app.use((req, res, next) => {
   });
   next();
 });
-
-// API yo'nalishlari
-app.use("/api/v1", routes);
 
 // Xatolarni qayta ishlash middleware
 app.use((err, req, res, next) => {
@@ -112,6 +107,20 @@ const serverniIshgaTushirish = async () => {
       logger.info(`Server ${port}-portda ishga tushdi`);
       logger.info(`Muhit: ${process.env.NODE_ENV}`);
     });
+
+    // Bot commands
+    await bot.api.setMyCommands([
+      { command: 'start', description: 'Botni ishga tushirish' },
+      { command: 'help', description: 'Yordam' },
+      { command: 'sherik', description: 'Sherik topish' },
+      { command: 'ish', description: 'Ish topish' },
+      { command: 'xodim', description: 'Xodim topish' },
+      { command: 'ustoz', description: 'Ustoz topish' },
+      { command: 'shogird', description: 'Shogird topish' }
+    ]);
+
+    // Botni ishga tushirish
+    bot.start();
 
     // Jarayonni to'xtatish signallarini qayta ishlash
     process.on('SIGTERM', xizmatniToxtatis);

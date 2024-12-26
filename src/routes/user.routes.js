@@ -1,7 +1,7 @@
-import { Router } from "express";
-import { User } from "../models/user.model.js";
-import NodeCache from "node-cache";
-import mongoose from 'mongoose';
+const { Router } = require('express');
+const { User } = require('../models/user.model.js');
+const NodeCache = require('node-cache');
+const mongoose = require('mongoose');
 
 const router = Router();
 const cache = new NodeCache({ stdTTL: 300 }); // 5 daqiqalik kesh
@@ -133,4 +133,4 @@ router.patch("/:id", validateId, async (req, res) => {
   }
 });
 
-export default router;
+module.exports = router;

@@ -1,25 +1,49 @@
-import mongoose from "mongoose";
+const mongoose = require('mongoose');
 
-const adsSchema = mongoose.Schema(
-  {
-    user_id: String,
-    category: String,
-    post_id: { type: String, unique: true },
-    tg_link: String,
-    name: String,
-    age: String,
-    phone: String,
-    technology: String,
-    degree: String,
-    work_place: String,
-    work_time: String,
-    price: String,
-    region: String,
-    call_time: String,
-    info: String,
-    ads_state: String,
-  },
-  { timestamps: true }
-);
+const adsSchema = new mongoose.Schema({
+    fullName: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    age: {
+        type: Number,
+        required: false
+    },
+    technologies: {
+        type: String,
+        required: true
+    },
+    phone: {
+        type: String,
+        required: true
+    },
+    location: {
+        type: String,
+        required: true
+    },
+    price: {
+        type: String,
+        required: false
+    },
+    type: {
+        type: String,
+        required: true,
+        enum: ['sherik', 'ish', 'xodim', 'ustoz', 'shogird']
+    },
+    status: {
+        type: String,
+        default: 'pending',
+        enum: ['pending', 'approved', 'rejected']
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
+});
 
-export const Ads = mongoose.model("advertisements", adsSchema);
+const Ads = mongoose.model('Ads', adsSchema);
+
+module.exports = {
+    Ads
+};

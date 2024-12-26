@@ -1,10 +1,15 @@
-import { Router } from "express";
-import adsRouter from "./ads.routes.js";
-import userRouter from "./user.routes.js";
+const express = require('express');
+const adsRouter = require("./ads.routes.js");
+const userRouter = require("./user.routes.js");
 
-const router = Router();
+const router = express.Router();
 
 router.use("/ads", adsRouter);
 router.use("/users", userRouter);
 
-export default router;
+// API endpoints
+router.get('/', (req, res) => {
+    res.json({ message: 'API is working' });
+});
+
+module.exports = router;

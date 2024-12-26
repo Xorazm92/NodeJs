@@ -1,7 +1,7 @@
-import { Router } from "express";
-import { Ads } from "../models/ads.model.js";
+const express = require('express');
+const { Ads } = require('../models/ads.model.js');
 
-const router = Router();
+const router = express.Router();
 
 router.get("/", async (req, res) => {
   try {
@@ -27,4 +27,4 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-export default router;
+module.exports = router;
