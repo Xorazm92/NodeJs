@@ -3,12 +3,27 @@ const { Menu } = require('@grammyjs/menu');
 
 const partner_scene = new Composer();
 
-// Ma'lumotlarni saqlash uchun obyekt
-let partnerData = {};
+// Bekor qilish va Bosh menyu tugmalarini tekshirish
+partner_scene.hears(['❌ Bekor qilish', '🏠 Bosh menyu'], async (ctx) => {
+    ctx.session.step = null;
+    ctx.session.data = {};
+    await ctx.reply('Bosh menyuga qaytdingiz', {
+        reply_markup: {
+            keyboard: [
+                ["🔍 Sherik kerak", "🎯 Ish joyi kerak"],
+                ["👨‍💼 Xodim kerak", "👨‍🏫 Ustoz kerak"],
+                ["👨‍🎓 Shogird kerak"]
+            ],
+            resize_keyboard: true,
+            one_time_keyboard: true
+        }
+    });
+});
 
-// Ism so'rash
+// Ism-familiyani olish
 partner_scene.command('sherik', async (ctx) => {
-    partnerData = {};
+    ctx.session.step = 'waiting_partner_name';
+    ctx.session.data = {};
     await ctx.reply("Ism, familiyangizni kiriting?", {
         reply_markup: {
             keyboard: [["❌ Bekor qilish", "🏠 Bosh menyu"]],
@@ -16,162 +31,69 @@ partner_scene.command('sherik', async (ctx) => {
             one_time_keyboard: true
         }
     });
-    ctx.session.step = 'waiting_partner_name';
 });
 
-// Ismni saqlash va texnologiya so'rash
-partner_scene.hears(/.*/, async (ctx) => {
-    if (ctx.session.step !== 'waiting_partner_name') return;
-    
-    if (ctx.message.text === "❌ Bekor qilish" || ctx.message.text === "🏠 Bosh menyu") {
-        await ctx.reply("Amaliyot bekor qilindi", {
-            reply_markup: {
-                keyboard: [
-                    ["🔍 Sherik kerak", "🎯 Ish joyi kerak"],
-                    ["👨‍💼 Xodim kerak", "👨‍🏫 Ustoz kerak"],
-                    ["👨‍🎓 Shogird kerak"]
-                ],
-                resize_keyboard: true,
-                one_time_keyboard: true
+partner_scene.on('message', async (ctx) => {
+    if (!ctx.session.step) return;
+
+    switch (ctx.session.step) {
+        case 'waiting_partner_name':
+            if (!ctx.message.text) {
+                await ctx.reply("Iltimos, ismingizni text formatida kiriting");
+                return;
             }
-        });
-        ctx.session.step = null;
-        return;
-    }
+            ctx.session.data.name = ctx.message.text;
+            ctx.session.step = 'waiting_partner_technology';
+            await ctx.reply("💻 Texnologiyalarni kiriting?\nTexnologiya nomlarini vergul bilan ajrating. Masalan,\njava, C++, C#", {
+                parse_mode: 'HTML'
+            });
+            break;
 
-    partnerData.fullName = ctx.message.text;
-    await ctx.reply("💻 Texnologiyalarni kiriting?\nTexnologiya nomlarini vergul bilan ajrating. Masalan,\njava, C++, C#", {
-        parse_mode: 'HTML'
-    });
-    ctx.session.step = 'waiting_partner_technologies';
-});
+        case 'waiting_partner_technology':
+            ctx.session.data.technology = ctx.message.text;
+            ctx.session.step = 'waiting_partner_phone';
+            await ctx.reply("📞 Aloqa uchun raqamingizni kiriting?\nMasalan, +998 90 123 45 67", {
+                parse_mode: 'HTML'
+            });
+            break;
 
-// Texnologiyalarni saqlash va telefon so'rash
-partner_scene.hears(/.*/, async (ctx) => {
-    if (ctx.session.step !== 'waiting_partner_technologies') return;
-
-    if (ctx.message.text === "❌ Bekor qilish" || ctx.message.text === "🏠 Bosh menyu") {
-        await ctx.reply("Amaliyot bekor qilindi", {
-            reply_markup: {
-                keyboard: [
-                    ["🔍 Sherik kerak", "🎯 Ish joyi kerak"],
-                    ["👨‍💼 Xodim kerak", "👨‍🏫 Ustoz kerak"],
-                    ["👨‍🎓 Shogird kerak"]
-                ],
-                resize_keyboard: true,
-                one_time_keyboard: true
+        case 'waiting_partner_phone':
+            const phoneRegex = /^\+998\s?\d{2}\s?\d{3}\s?\d{2}\s?\d{2}$/;
+            if (!phoneRegex.test(ctx.message.text.replace(/\s+/g, ''))) {
+                await ctx.reply("Iltimos, telefon raqamingizni to'g'ri formatda kiriting\nMasalan: +998 90 123 45 67");
+                return;
             }
-        });
-        ctx.session.step = null;
-        return;
-    }
+            ctx.session.data.phone = ctx.message.text;
+            ctx.session.step = 'confirm';
 
-    partnerData.technologies = ctx.message.text;
-    await ctx.reply("📞 Aloqa uchun raqamingizni kiriting?\nMasalan, +998 90 123 45 67", {
-        parse_mode: 'HTML'
-    });
-    ctx.session.step = 'waiting_partner_phone';
-});
+            // Ma'lumotlarni tasdiqlash
+            const confirmMessage = `Quyidagi ma'lumotlar to'g'rimi?\n\n` +
+                `👤 Ism, familiya: ${ctx.session.data.name}\n` +
+                `💻 Texnologiyalar: ${ctx.session.data.technology}\n` +
+                `📞 Tel: ${ctx.session.data.phone}`;
 
-// Telefonni saqlash va tasdiqlash
-partner_scene.hears(/.*/, async (ctx) => {
-    if (ctx.session.step !== 'waiting_partner_phone') return;
+            const menu = new Menu('confirm-menu')
+                .text('✅ Ha', async (ctx) => {
+                    // Ma'lumotlarni adminga yuborish
+                    const adminMessage = `Yangi sherik topish e'loni:\n\n` +
+                        `👤 Ism, familiya: ${ctx.session.data.name}\n` +
+                        `💻 Texnologiyalar: ${ctx.session.data.technology}\n` +
+                        `📞 Tel: ${ctx.session.data.phone}`;
 
-    if (ctx.message.text === "❌ Bekor qilish" || ctx.message.text === "🏠 Bosh menyu") {
-        await ctx.reply("Amaliyot bekor qilindi", {
-            reply_markup: {
-                keyboard: [
-                    ["🔍 Sherik kerak", "🎯 Ish joyi kerak"],
-                    ["👨‍💼 Xodim kerak", "👨‍🏫 Ustoz kerak"],
-                    ["👨‍🎓 Shogird kerak"]
-                ],
-                resize_keyboard: true,
-                one_time_keyboard: true
-            }
-        });
-        ctx.session.step = null;
-        return;
-    }
+                    await ctx.api.sendMessage(process.env.ADMIN_ID, adminMessage);
+                    await ctx.reply("E'loningiz adminga yuborildi. Tez orada kanalda e'lon qilinadi!");
+                    
+                    // Sessiyani tozalash
+                    ctx.session.step = null;
+                    ctx.session.data = {};
+                })
+                .text('❌ Yo\'q', (ctx) => {
+                    ctx.session.step = 'waiting_partner_name';
+                    ctx.reply("Ism, familiyangizni kiriting?");
+                });
 
-    partnerData.phone = ctx.message.text;
-    
-    const confirmMessage = `<b>Ma'lumotlar to'g'riligini tekshiring:</b>\n\n` +
-        `👤 Ism, familiya: ${partnerData.fullName}\n` +
-        `💻 Texnologiyalar: ${partnerData.technologies}\n` +
-        `📞 Aloqa: ${partnerData.phone}\n\n` +
-        `Ma'lumotlar to'g'rimi?`;
-    
-    await ctx.reply(confirmMessage, {
-        parse_mode: 'HTML',
-        reply_markup: {
-            keyboard: [
-                ["✅ Ha", "🔄 Qaytadan"],
-                ["❌ Bekor qilish", "🏠 Bosh menyu"]
-            ],
-            resize_keyboard: true,
-            one_time_keyboard: true
-        }
-    });
-    
-    ctx.session.step = 'waiting_partner_confirmation';
-});
-
-// Tasdiqlash
-partner_scene.hears(/.*/, async (ctx) => {
-    if (ctx.session.step !== 'waiting_partner_confirmation') return;
-
-    if (ctx.message.text === "❌ Bekor qilish" || ctx.message.text === "🏠 Bosh menyu") {
-        await ctx.reply("Amaliyot bekor qilindi", {
-            reply_markup: {
-                keyboard: [
-                    ["🔍 Sherik kerak", "🎯 Ish joyi kerak"],
-                    ["👨‍💼 Xodim kerak", "👨‍🏫 Ustoz kerak"],
-                    ["👨‍🎓 Shogird kerak"]
-                ],
-                resize_keyboard: true,
-                one_time_keyboard: true
-            }
-        });
-        ctx.session.step = null;
-        return;
-    }
-
-    if (ctx.message.text === "🔄 Qaytadan") {
-        await ctx.reply("Qaytadan ma'lumotlarni kiritish", {
-            reply_markup: {
-                keyboard: [["❌ Bekor qilish", "🏠 Bosh menyu"]],
-                resize_keyboard: true,
-                one_time_keyboard: true
-            }
-        });
-        ctx.session.step = 'waiting_partner_name';
-        return;
-    }
-
-    if (ctx.message.text === "✅ Ha") {
-        const notificationMessage = `<b>Yangi sheriklik uchun ariza!</b>\n\n` +
-            `👤 Ism, familiya: ${partnerData.fullName}\n` +
-            `💻 Texnologiyalar: ${partnerData.technologies}\n` +
-            `📞 Aloqa: ${partnerData.phone}`;
-
-        // Send to admin
-        await ctx.api.sendMessage(process.env.ADMIN_ID, notificationMessage, {
-            parse_mode: 'HTML'
-        });
-
-        await ctx.reply("✅ Arizangiz muvaffaqiyatli yuborildi.\nAdminlar tez orada ko'rib chiqishadi.", {
-            reply_markup: {
-                keyboard: [
-                    ["🔍 Sherik kerak", "🎯 Ish joyi kerak"],
-                    ["👨‍💼 Xodim kerak", "👨‍🏫 Ustoz kerak"],
-                    ["👨‍🎓 Shogird kerak"]
-                ],
-                resize_keyboard: true,
-                one_time_keyboard: true
-            }
-        });
-
-        ctx.session.step = null;
+            await ctx.reply(confirmMessage, { reply_markup: menu });
+            break;
     }
 });
 
