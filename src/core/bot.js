@@ -1,60 +1,48 @@
-const { Bot, session, Scenes } = require('grammy');
+const { Bot, session } = require('grammy');
 const { config } = require('dotenv');
 const { limit: rateLimit } = require('@grammyjs/ratelimiter');
-const { partner_scene } = require('../scenes/partner.scene.js');
-const { job_seeker_scene } = require('../scenes/job_seeker.scene.js');
-const { employee_search_scene } = require('../scenes/employee_search.scene.js');
-const { mentor_search_scene } = require('../scenes/mentor_search.scene.js');
-const { apprentice_search_scene } = require('../scenes/apprentice_search.scene.js');
-const { partner_hears } = require('../actions/partner_hears.js');
-const { job_seeker_hears } = require('../actions/job_seeker_hears.js');
-const { employee_search_hears } = require('../actions/employee_search_hears.js');
-const { mentor_search_hears } = require('../actions/mentor_search_hears.js');
-const { apprentice_search_hears } = require('../actions/apprentice_search_hears.js');
+const scenes = require('../scenes');
+const actions = require('../actions');
 
 config();
 
-// Bot yaratish va sozlash
+// Bot yaratish
 const bot = new Bot(process.env.BOT_API);
-
-// Scene manager
-const stage = new Scenes.Stage([
-    partner_scene, 
-    job_seeker_scene, 
-    employee_search_scene,
-    mentor_search_scene,
-    apprentice_search_scene
-]);
 
 // Sessiya middleware
 bot.use(session({
     initial: () => ({
-        step: "idle",
-        data: {},
-        __scenes: {},
+        step: null,
+        data: {}
     })
 }));
-
-// Scene middleware
-bot.use(stage.middleware());
-
-// Command handlers
-bot.command("sherik", partner_hears);
-bot.hears("🤝 Sherik kerak", partner_hears);
-bot.command("ish", job_seeker_hears);
-bot.hears("💼 Ish joyi kerak", job_seeker_hears);
-bot.command("xodim", employee_search_hears);
-bot.hears("👨‍💼 Xodim kerak", employee_search_hears);
-bot.command("ustoz", mentor_search_hears);
-bot.hears("👨‍🏫 Ustoz kerak", mentor_search_hears);
-bot.command("shogird", apprentice_search_hears);
-bot.hears("👨‍🎓 Shogird kerak", apprentice_search_hears);
 
 // So'rovlar sonini cheklash
 bot.use(rateLimit({
     timeFrame: 2000,
     limit: 3,
 }));
+
+// Scene'larni ulash
+bot.use(scenes.partner_scene);
+bot.use(scenes.job_seeker_scene);
+bot.use(scenes.employee_search_scene);
+bot.use(scenes.mentor_search_scene);
+bot.use(scenes.apprentice_search_scene);
+
+// Command handlers
+bot.command("start", actions.start);
+bot.command("help", actions.help);
+bot.command("sherik", actions.partner_hears);
+bot.hears("🔍 Sherik kerak", actions.partner_hears);
+bot.command("ish", actions.job_seeker_hears);
+bot.hears("🎯 Ish joyi kerak", actions.job_seeker_hears);
+bot.command("xodim", actions.employee_search_hears);
+bot.hears("👨‍💼 Xodim kerak", actions.employee_search_hears);
+bot.command("ustoz", actions.mentor_search_hears);
+bot.hears("👨‍🏫 Ustoz kerak", actions.mentor_search_hears);
+bot.command("shogird", actions.apprentice_search_hears);
+bot.hears("👨‍🎓 Shogird kerak", actions.apprentice_search_hears);
 
 // Xatolarni qayta ishlash
 bot.catch((err) => {
