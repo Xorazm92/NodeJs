@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -14,12 +14,18 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
-    const user = await this.userRepository.findOne({ where: { email } });
-    if (user && await bcrypt.compare(password, user.password)) {
-      const { password, ...result } = user;
-      return result;
+    const user = await this.userRepository.findOneBy({ email });
+    if (!user) {
+      throw new UnauthorizedException('User not found');
     }
-    return null;
+    
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid password');
+    }
+
+    const { password: _, ...result } = user;
+    return result;
   }
 
   async login(user: any) {
@@ -30,13 +36,21 @@ export class AuthService {
   }
 
   async register(userData: any) {
+    const existingUser = await this.userRepository.findOneBy({ email: userData.email });
+
+    if (existingUser) {
+      throw new UnauthorizedException('User with this email already exists');
+    }
+
     const hashedPassword = await bcrypt.hash(userData.password, 10);
-    const user = this.userRepository.create({
+    const user = new User();
+    Object.assign(user, {
       ...userData,
       password: hashedPassword,
     });
-    await this.userRepository.save(user);
-    const { password, ...result } = user;
+    
+    const savedUser = await this.userRepository.save(user);
+    const { password: _, ...result } = savedUser;
     return result;
   }
 }
