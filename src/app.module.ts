@@ -11,6 +11,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ProductsModule } from './modules/products/products.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { RedisModule } from '@nestjs-modules/ioredis';
+import { RedisCacheModule } from './common/cache/cache.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { RedisModule } from '@nestjs-modules/ioredis';
       type: 'single',
       url: 'redis://localhost:6379',
     }),
+    RedisCacheModule,
     CacheModule.registerAsync({
       isGlobal: true,
       useFactory: async () => ({

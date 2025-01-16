@@ -2,49 +2,88 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Product } from '../../entities/product.entity';
+import { BaseService } from '../../common/services/base.service';
+import { RedisCacheService } from '../../common/services/redis-cache.service';
+import { PaginationDto } from '../../common/dto/pagination.dto';
+import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 
 @Injectable()
-export class ProductsService {
+export class ProductsService extends BaseService<Product> {
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
-    @InjactRedis() private readonly redis: Redis,
-  ) {}
+    private readonly cacheService: RedisCacheService,
+  ) {
+    super(productRepository);
+  }
 
-  async findAll() {
-    const redisData = await this.redis.keys('*');
-    if(redisData.length > 0){
-      const products = await this.redis.mget(redisData);
-      console.log('catch hit');
-      return products.map((product)=> JSON.parse(product));
-    } else{
-      const products = await this.productRepository.find();
-      products.forEach(async (product) => {
-        await this.redis.set(product.id, JSON.stringify(product))
-      })
-      console.log('catch miss');
-      return products;      
+  async findAll(dto: PaginationDto) {
+    const cacheKey = this.cacheService.generateKey('products:all', dto);
+    const cached = await this.cacheService.get(cacheKey);
+    
+    if (cached) {
+      return cached;
     }
+
+    const queryBuilder = this.productRepository
+      .createQueryBuilder('entity');
+    
+    if (dto.search) {
+      this.createSearchQuery(queryBuilder, ['name', 'description'], dto.search);
+    }
+    
+    const result = await this.paginate(queryBuilder, dto);
+    await this.cacheService.set(cacheKey, result);
+    
+    return result;
   }
 
   async findOne(id: number) {
-    return this.productRepository.findOne({ where: { id } });
+    const cacheKey = `product:${id}`;
+    const cached = await this.cacheService.get(cacheKey);
+    
+    if (cached) {
+      return cached;
+    }
+
+    const product = await this.productRepository.findOne({ where: { id } });
+    if (product) {
+      await this.cacheService.set(cacheKey, product);
+    }
+    
+    return product;
   }
 
-  async create(productData: any) {
-    const product = this.productRepository.create(productData);
-    await this.redis.set(result.id, JSON.stringify(result) )
-    return this.productRepository.save(product);
+  async create(createProductDto: CreateProductDto) {
+    const product = this.productRepository.create(createProductDto);
+    await this.productRepository.save(product);
+    await this.cacheService.del('products:all');
+    return product;
   }
 
-  async update(id: number, productData: any) {
-    await this.productRepository.update(id, productData);
-    return this.productRepository.findOne({ where: { id } });
+  async update(id: number, updateProductDto: UpdateProductDto) {
+    const product = await this.productRepository.preload({
+      id,
+      ...updateProductDto,
+    });
+    
+    if (product) {
+      await this.productRepository.save(product);
+      await this.cacheService.del(`product:${id}`);
+      await this.cacheService.del('products:all');
+    }
+    
+    return product;
   }
 
   async remove(id: number) {
-    const product = await this.productRepository.findOne({ where: { id } });
-    product.is_active = false;
-    return this.productRepository.save(product);
+    const product = await this.findOne(id);
+    if (product) {
+      await this.productRepository.remove(product);
+      await this.cacheService.del(`product:${id}`);
+      await this.cacheService.del('products:all');
+    }
+    return product;
   }
 }
