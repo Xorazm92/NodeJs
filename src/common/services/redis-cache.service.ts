@@ -1,32 +1,33 @@
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Injectable, Inject } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 
 @Injectable()
 export class RedisCacheService {
-  constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
+  constructor(
+    @Inject(CACHE_MANAGER) private readonly cache: Cache,
+  ) {}
 
-  async get<T>(key: string): Promise<T | undefined> {
-    return await this.cacheManager.get<T>(key);
+  async get(key: string) {
+    return await this.cache.get(key);
   }
 
-  async set(key: string, value: any, ttl?: number): Promise<void> {
-    await this.cacheManager.set(key, value, ttl);
+  async set(key: string, value: any, ttl?: number) {
+    await this.cache.set(key, value, ttl);
   }
 
-  async del(key: string): Promise<void> {
-    await this.cacheManager.del(key);
+  async del(key: string) {
+    await this.cache.del(key);
   }
 
-  async reset(): Promise<void> {
-    await this.cacheManager.reset();
-  }
-
-  generateKey(prefix: string, params: Record<string, any>): string {
-    const sortedParams = Object.entries(params)
-      .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
-      .map(([key, value]) => `${key}:${value}`)
-      .join(':');
-    return `${prefix}:${sortedParams}`;
+  generateKey(prefix: string, params: any): string {
+    const sortedParams = Object.keys(params)
+      .sort()
+      .reduce((result, key) => {
+        result[key] = params[key];
+        return result;
+      }, {});
+    
+    return `${prefix}:${JSON.stringify(sortedParams)}`;
   }
 }

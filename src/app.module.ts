@@ -12,6 +12,7 @@ import { ProductsModule } from './modules/products/products.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { RedisModule } from '@nestjs-modules/ioredis';
 import { RedisCacheModule } from './common/cache/cache.module';
+import { WebsocketModule } from './websocket/websocket.module';
 
 @Module({
   imports: [
@@ -23,14 +24,12 @@ import { RedisCacheModule } from './common/cache/cache.module';
       url: 'redis://localhost:6379',
     }),
     RedisCacheModule,
-    CacheModule.registerAsync({
+    CacheModule.register({
       isGlobal: true,
-      useFactory: async () => ({
-        store: redisStore,
-        host: process.env.REDIS_HOST || 'localhost',
-        port: parseInt(process.env.REDIS_PORT) || 6379,
-        ttl: 60 * 60 * 24, // 24 hours
-      }),
+      store: 'redis',
+      host: process.env.REDIS_HOST || 'localhost',
+      port: parseInt(process.env.REDIS_PORT) || 6379,
+      ttl: 60 * 60 * 24, // 24 hours
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -46,6 +45,7 @@ import { RedisCacheModule } from './common/cache/cache.module';
     AuthModule,
     ProductsModule,
     OrdersModule,
+    WebsocketModule,
   ],
   controllers: [],
   providers: [],

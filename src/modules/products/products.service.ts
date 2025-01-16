@@ -79,11 +79,12 @@ export class ProductsService extends BaseService<Product> {
 
   async remove(id: number) {
     const product = await this.findOne(id);
-    if (product) {
-      await this.productRepository.remove(product);
-      await this.cacheService.del(`product:${id}`);
-      await this.cacheService.del('products:all');
+    if (!product) {
+      return null;
     }
-    return product;
+    const result = await this.productRepository.remove(product as Product);
+    await this.cacheService.del(`product:${id}`);
+    await this.cacheService.del('products:all');
+    return result;
   }
 }
