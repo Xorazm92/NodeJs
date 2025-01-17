@@ -13,12 +13,14 @@ import { OrdersModule } from './modules/orders/orders.module';
 import { RedisModule } from '@nestjs-modules/ioredis';
 import { RedisCacheModule } from './common/cache/cache.module';
 import { WebsocketModule } from './websocket/websocket.module';
+import { LoggerConfig } from './config/logger.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    LoggerConfig,
     RedisModule.forRoot({
       type: 'single',
       url: 'redis://localhost:6379',
@@ -34,12 +36,12 @@ import { WebsocketModule } from './websocket/websocket.module';
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT),
+      port: +process.env.DB_PORT,
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
-      database: process.env.DB_DATABASE,
+      database: process.env.DB_NAME,
       entities: [User, Product, Order, OrderProduct],
-      synchronize: true,
+      synchronize: process.env.NODE_ENV !== 'production',
     }),
     TypeOrmModule.forFeature([User, Product, Order, OrderProduct]),
     AuthModule,
