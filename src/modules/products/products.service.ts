@@ -1,22 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Product } from '../../entities/product.entity';
-import { BaseService } from '../../common/services/base.service';
 import { RedisCacheService } from '../../common/services/redis-cache.service';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { PrismaService } from '../../common/services/prisma.service';
 
 @Injectable()
-export class ProductsService extends BaseService<Product> {
+export class ProductsService {
   constructor(
-    @InjectRepository(Product)
-    private readonly productRepository: Repository<Product>,
+    private readonly prisma: PrismaService,
     private readonly cacheService: RedisCacheService,
-  ) {
-    super(productRepository);
-  }
+  ) {}
 
   async findAll(dto: PaginationDto) {
     const cacheKey = this.cacheService.generateKey('products:all', dto);
@@ -26,16 +20,33 @@ export class ProductsService extends BaseService<Product> {
       return cached;
     }
 
-    const queryBuilder = this.productRepository
-      .createQueryBuilder('entity');
-    
-    if (dto.search) {
-      this.createSearchQuery(queryBuilder, ['name', 'description'], dto.search);
-    }
-    
-    const result = await this.paginate(queryBuilder, dto);
+    const skip = (dto.page - 1) * dto.limit;
+    const where = dto.search ? {
+      OR: [
+        { name: { contains: dto.search } },
+        { info: { contains: dto.search } }
+      ]
+    } : {};
+
+    const [data, total] = await Promise.all([
+      this.prisma.product.findMany({
+        where,
+        skip,
+        take: dto.limit,
+        orderBy: { [dto.sortBy || 'createdAt']: dto.sortOrder || 'desc' }
+      }),
+      this.prisma.product.count({ where })
+    ]);
+
+    const result = {
+      data,
+      total,
+      page: dto.page,
+      limit: dto.limit,
+      totalPages: Math.ceil(total / dto.limit)
+    };
+
     await this.cacheService.set(cacheKey, result);
-    
     return result;
   }
 
@@ -47,44 +58,50 @@ export class ProductsService extends BaseService<Product> {
       return cached;
     }
 
-    const product = await this.productRepository.findOne({ where: { id } });
+    const product = await this.prisma.product.findUnique({
+      where: { id }
+    });
+
     if (product) {
       await this.cacheService.set(cacheKey, product);
     }
-    
+
     return product;
   }
 
   async create(createProductDto: CreateProductDto) {
-    const product = this.productRepository.create(createProductDto);
-    await this.productRepository.save(product);
-    await this.cacheService.del('products:all');
+    const product = await this.prisma.product.create({
+      data: createProductDto
+    });
+
+    await this.cacheService.del('products:*');
     return product;
   }
 
   async update(id: number, updateProductDto: UpdateProductDto) {
-    const product = await this.productRepository.preload({
-      id,
-      ...updateProductDto,
+    const product = await this.prisma.product.update({
+      where: { id },
+      data: updateProductDto
     });
-    
-    if (product) {
-      await this.productRepository.save(product);
-      await this.cacheService.del(`product:${id}`);
-      await this.cacheService.del('products:all');
-    }
-    
+
+    await Promise.all([
+      this.cacheService.del('products:*'),
+      this.cacheService.del(`product:${id}`)
+    ]);
+
     return product;
   }
 
   async remove(id: number) {
-    const product = await this.findOne(id);
-    if (!product) {
-      return null;
-    }
-    const result = await this.productRepository.remove(product as Product);
-    await this.cacheService.del(`product:${id}`);
-    await this.cacheService.del('products:all');
-    return result;
+    await this.prisma.product.delete({
+      where: { id }
+    });
+
+    await Promise.all([
+      this.cacheService.del('products:*'),
+      this.cacheService.del(`product:${id}`)
+    ]);
+
+    return { id };
   }
 }

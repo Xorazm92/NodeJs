@@ -1,17 +1,13 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ProductsController } from './products.controller';
 import { ProductsService } from './products.service';
-import { Product } from '../../entities/product.entity';
-import { RedisCacheModule } from '../../common/cache/cache.module';
+import { ProductsController } from './products.controller';
+import { PrismaService } from '../../common/services/prisma.service';
+import { RedisCacheModule } from '../../common/modules/redis-cache.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Product]),
-    RedisCacheModule
-  ],
+  imports: [RedisCacheModule],
   controllers: [ProductsController],
-  providers: [ProductsService],
+  providers: [ProductsService, PrismaService],
   exports: [ProductsService]
 })
 export class ProductsModule {}
